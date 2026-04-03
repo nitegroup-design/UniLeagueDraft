@@ -5,13 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Hệ Thống Bốc Thăm UNI LEAGUE</title>
 
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
 
+  <!-- React & ReactDOM -->
   <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <script src="https://unpkg.com/lucide@latest"></script>
 
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore-compat.js"></script>
@@ -27,13 +29,28 @@
     .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 10px; }
     
-    /* Chống nảy trang trên iOS */
+    /* Chống nảy trang trên Mobile */
     body { overscroll-behavior-y: none; }
   </style>
 </head>
 <body class="bg-[#0a0f1c] text-slate-200 font-sans selection:bg-amber-500/30 overflow-hidden">
   
+  <!-- Khu vực hiển thị thông báo nếu bị lỗi copy-paste -->
+  <div id="error-screen" style="display: none; color: #f87171; padding: 20px; text-align: center; margin-top: 50px;">
+     <h2>Hệ thống gặp lỗi cú pháp do Copy/Paste!</h2>
+     <p id="error-msg" class="font-mono text-sm text-yellow-400 mt-4"></p>
+     <p style="color: #94a3b8; font-size: 14px; margin-top: 20px;">Bạn đang bị dính ký tự khoảng trắng ẩn. Vui lòng xóa hết code hiện tại, quay lại trang chat và bấm <b>NÚT COPY CODE</b> ở góc trên bên phải khung code để lấy lại mã chuẩn nhé!</p>
+  </div>
+
   <div id="root"></div>
+
+  <script>
+     window.onerror = function(msg) {
+        document.getElementById('root').style.display = 'none';
+        document.getElementById('error-screen').style.display = 'block';
+        document.getElementById('error-msg').innerText = "Chi tiết lỗi: " + msg;
+     };
+  </script>
 
   <script type="text/babel">
 
@@ -64,7 +81,7 @@
       { id: 5, name: 'Đội 5', colorFrom: 'from-purple-600', colorTo: 'to-purple-900', shadow: 'shadow-purple-500/20', textGlow: 'drop-shadow-[0_0_8px_rgba(147,51,234,0.8)]', players: [] },
       { id: 6, name: 'Đội 6', colorFrom: 'from-pink-600', colorTo: 'to-pink-900', shadow: 'shadow-pink-500/20', textGlow: 'drop-shadow-[0_0_8px_rgba(219,39,119,0.8)]', players: [] },
     ];
-    const POSITIONS = ['Thủ môn', 'Hậu vệ', 'Tiền vệ', 'Tiền đạo'];
+    const POSITIONS = ['Thủ môn', 'Hậu vệ', 'Tiền vệ', 'Tiền đạo', 'Khác'];
     const DEFAULT_CONFIG = { maxPlayersPerTeam: 7, teamNames: ['Đội 1', 'Đội 2', 'Đội 3', 'Đội 4', 'Đội 5', 'Đội 6'] };
     const DEFAULT_PASSCODE = "unidraft2024";
 
@@ -99,6 +116,7 @@
         default: return <IconUsers className="text-slate-400" size={14} />;
       }
     };
+    
     const getPositionColor = (pos) => {
       switch(pos) {
         case 'Thủ môn': return 'bg-amber-400/10 text-amber-400 border-amber-400/20';
@@ -111,7 +129,7 @@
 
     const { useState, useEffect, useRef } = React;
 
-    // --- 4. MAIN APP ---
+    // --- 4. MAIN APP COMPONENT ---
     function App() {
       const [role, setRole] = useState(null);
       const [user, setUser] = useState(null);
@@ -128,7 +146,7 @@
             console.error("Auth error:", error);
             setDbError(true);
           });
-        const unsubscribe = auth.onAuthStateChanged((user) => setUser(user));
+        const unsubscribe = auth.onAuthStateChanged((u) => setUser(u));
         return () => unsubscribe();
       }, []);
 
@@ -150,13 +168,12 @@
       if (!role) {
         return (
           <div className="fixed inset-0 bg-[#0a0f1c] flex items-center justify-center p-4 md:p-6 relative overflow-hidden font-sans">
-            {/* Background Blob - Giảm Blur trên mobile */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-amber-500/10 blur-[80px] md:blur-[120px] rounded-full pointer-events-none z-0 transform-gpu"></div>
             
             <div className="bg-slate-900/80 backdrop-blur-md md:backdrop-blur-xl border border-white/10 p-6 md:p-10 rounded-3xl shadow-2xl z-10 max-w-2xl w-full text-center">
               <div className="flex justify-center mb-6">
                 <div className="w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-amber-300 to-amber-700 rounded-2xl flex items-center justify-center shadow-[0_0_30px_rgba(245,158,11,0.4)]">
-                  <IconTrophy className="text-slate-950" size={32} md:size={40} />
+                  <IconTrophy className="text-slate-950" size={36} />
                 </div>
               </div>
               <h1 className="text-2xl md:text-4xl font-black text-white uppercase tracking-wider mb-2">Hệ Thống Draft</h1>
@@ -167,13 +184,13 @@
                   <div className="absolute top-4 right-4 bg-slate-900 p-1.5 rounded-md border border-white/10 text-amber-500/50"><IconLock size={14} /></div>
                   <IconMonitorPlay size={40} className="text-amber-400 mb-3 group-hover:scale-110 transition-transform" />
                   <h2 className="text-lg md:text-xl font-bold text-white mb-2">Màn hình Livestream</h2>
-                  <p className="text-xs text-slate-400 text-center">Phòng dành cho MC và Quản trị viên (Cần Passcode)</p>
+                  <p className="text-xs text-slate-400 text-center">Phòng dành cho MC và Quản trị viên</p>
                 </button>
 
                 <button onClick={() => setRole('viewer')} className="group bg-slate-800 hover:bg-slate-700 border border-white/5 rounded-2xl p-6 md:p-8 flex flex-col items-center transition-all duration-300 hover:border-blue-500/50 hover:shadow-[0_0_30px_rgba(59,130,246,0.2)]">
                   <IconSmartphone size={40} className="text-blue-400 mb-3 group-hover:scale-110 transition-transform" />
                   <h2 className="text-lg md:text-xl font-bold text-white mb-2">Khán giả theo dõi</h2>
-                  <p className="text-xs text-slate-400 text-center">Xem kết quả bốc thăm trên điện thoại ở nhà</p>
+                  <p className="text-xs text-slate-400 text-center">Xem kết quả bốc thăm trên thiết bị cá nhân</p>
                 </button>
               </div>
               {dbError && <p className="text-red-400 mt-6 text-xs font-bold bg-red-900/20 p-3 rounded-lg border border-red-500/20"><IconCloudOff size={14} className="inline mr-2"/> Database chưa kết nối. Vui lòng kiểm tra lại mạng!</p>}
@@ -202,7 +219,7 @@
       return <DraftApplication role={role} user={user} dbError={dbError} onBack={() => setRole(null)} currentPasscode={currentPasscode} />;
     }
 
-    // --- 5. COMPONENT MÀN HÌNH CHÍNH ---
+    // --- 5. COMPONENT HỆ THỐNG DRAFT ---
     function DraftApplication({ role, user, dbError, onBack, currentPasscode }) {
       const [teams, setTeams] = useState(INITIAL_TEAMS);
       const [availablePlayers, setAvailablePlayers] = useState([]);
@@ -214,7 +231,7 @@
       const [syncStatus, setSyncStatus] = useState('saved');
       
       const lastProcessedCmdId = useRef(null);
-      const [teamTurnIndex, setTeamTurnIndex] = useState(0);
+      const isFirstLoad = useRef(true);
 
       useEffect(() => {
         if (!user || dbError) return;
@@ -223,16 +240,28 @@
         const unsubscribe = docRef.onSnapshot((docSnap) => {
           if (docSnap.exists) {
             const data = docSnap.data();
-            if (data.teams) setTeams(data.teams);
-            if (data.availablePlayers) setAvailablePlayers(data.availablePlayers);
+            
+            // Lấy dữ liệu mới nhất từ Firebase (Giải quyết triệt để lỗi mất dữ liệu khi quay xong)
+            const currentTeams = data.teams || INITIAL_TEAMS;
+            const currentAvailable = data.availablePlayers || [];
+
+            if (isFirstLoad.current) {
+               isFirstLoad.current = false;
+               if (data.lotteryCmd) lastProcessedCmdId.current = data.lotteryCmd.id;
+            }
+
+            setTeams(currentTeams);
+            setAvailablePlayers(currentAvailable);
             if (data.config) setConfig(data.config);
             
             if (data.lotteryCmd && data.lotteryCmd.id !== lastProcessedCmdId.current) {
               lastProcessedCmdId.current = data.lotteryCmd.id;
-              playLotteryAnimation(data.lotteryCmd.player, data.lotteryCmd.team);
+              // Truyền luôn danh sách mới nhất vào hiệu ứng bốc thăm
+              playLotteryAnimation(data.lotteryCmd.player, data.lotteryCmd.team, currentTeams, currentAvailable);
             }
           } else if (role === 'admin') {
              docRef.set({ teams: INITIAL_TEAMS, availablePlayers: [], config: DEFAULT_CONFIG, lotteryCmd: null }, { merge: true });
+             isFirstLoad.current = false;
           }
         }, (err) => console.error("Snapshot error:", err));
 
@@ -258,33 +287,25 @@
 
       const triggerNextDraw = async () => {
         if (availablePlayers.length === 0 || lottery.active) return;
-        let targetPos = 'Khác';
-        let playerPool = [];
-        for (let pos of POSITIONS) {
-          const p = availablePlayers.filter(x => x.position === pos);
-          if (p.length > 0) { targetPos = pos; playerPool = p; break; }
+        
+        const actualPlayer = availablePlayers[Math.floor(Math.random() * availablePlayers.length)];
+        const minPlayersCount = Math.min(...teams.map(t => t.players.length));
+        const eligibleTeams = teams.filter(t => t.players.length === minPlayersCount && t.players.length < config.maxPlayersPerTeam);
+        
+        if (eligibleTeams.length === 0) {
+           alert("Tất cả các đội bóng đã đủ người!");
+           return;
         }
-        if (playerPool.length === 0) playerPool = availablePlayers.filter(x => !POSITIONS.includes(x.position));
-        if (playerPool.length === 0) return;
 
-        const actualPlayer = playerPool[Math.floor(Math.random() * playerPool.length)];
-        let attempts = 0;
-        let currentIdx = teamTurnIndex;
-        while (teams[currentIdx].players.length >= config.maxPlayersPerTeam && attempts < teams.length) {
-          currentIdx = (currentIdx + 1) % teams.length;
-          attempts++;
-        }
-        if (attempts >= teams.length) return;
-
-        const actualTeam = teams[currentIdx];
-        setTeamTurnIndex((currentIdx + 1) % teams.length);
+        const actualTeam = eligibleTeams[Math.floor(Math.random() * eligibleTeams.length)];
         const cmdId = Date.now().toString();
         await syncToCloud({ lotteryCmd: { id: cmdId, player: actualPlayer, team: actualTeam } });
       };
 
-      const playLotteryAnimation = async (actualPlayer, actualTeam) => {
+      // Đã thêm 2 tham số currentTeams, currentAvailable vào để hệ thống không bị "Mất trí nhớ"
+      const playLotteryAnimation = async (actualPlayer, actualTeam, currentTeams, currentAvailable) => {
         setLottery({ active: true, phase: 'spin_player', player: null, team: null });
-        const pool = availablePlayers.length > 0 ? availablePlayers : [actualPlayer];
+        const pool = currentAvailable.length > 0 ? currentAvailable : [actualPlayer];
 
         for(let i=0; i<25; i++) {
           setLottery(prev => ({...prev, player: pool[Math.floor(Math.random()*pool.length)]}));
@@ -296,7 +317,7 @@
 
         setLottery(prev => ({...prev, phase: 'spin_team'}));
         for(let i=0; i<20; i++) {
-          setLottery(prev => ({...prev, team: teams[Math.floor(Math.random()*teams.length)]}));
+          setLottery(prev => ({...prev, team: currentTeams[Math.floor(Math.random()*currentTeams.length)]}));
           await new Promise(r => setTimeout(r, 80 + (i*3)));
         }
 
@@ -305,8 +326,10 @@
         setLottery({ active: false, phase: '', player: null, team: null });
 
         if (role === 'admin') {
-          const newTeams = teams.map(t => t.id === actualTeam.id ? { ...t, players: [...t.players, actualPlayer] } : t);
-          const newAvailable = availablePlayers.filter(p => p.id !== actualPlayer.id);
+          // Lấy danh sách MỚI NHẤT để tính toán thay vì danh sách Trống lúc mới tải trang
+          const newTeams = currentTeams.map(t => t.id === actualTeam.id ? { ...t, players: [...t.players, actualPlayer] } : t);
+          const newAvailable = currentAvailable.filter(p => p.id !== actualPlayer.id);
+          
           setTeams(newTeams);
           setAvailablePlayers(newAvailable);
           await syncToCloud({ teams: newTeams, availablePlayers: newAvailable });
@@ -314,11 +337,10 @@
       };
 
       const resetDraw = async () => {
-        if (!window.confirm("CẢNH BÁO: Hành động này sẽ XÓA TOÀN BỘ KẾT QUẢ ĐÃ LƯU TRÊN CLOUD và làm lại từ đầu. Bạn chắc chắn chứ?")) return;
+        if (!window.confirm("CẢNH BÁO: Hành động này sẽ XÓA TOÀN BỘ KẾT QUẢ và làm lại từ đầu. Chắc chắn chứ?")) return;
         const newTeams = INITIAL_TEAMS.map((t, idx) => ({ ...t, name: config.teamNames[idx], players: [] }));
         setTeams(newTeams);
-        setTeamTurnIndex(0);
-        if (role === 'admin') await syncToCloud({ teams: newTeams });
+        if (role === 'admin') await syncToCloud({ teams: newTeams, availablePlayers: [] });
       };
 
       const handleImportExcel = async () => {
@@ -328,16 +350,37 @@
         
         lines.forEach((line, index) => {
           if (!line.trim()) return;
-          const parts = line.split('\t');
-          if (parts.length >= 1) {
-            let name = parts[0].trim();
-            let position = parts.length > 1 ? parts[1].trim() : 'Chưa rõ';
-            if(position.toLowerCase().includes('thủ')) position = 'Thủ môn';
-            else if(position.toLowerCase().includes('hậu')) position = 'Hậu vệ';
-            else if(position.toLowerCase().includes('vệ') && !position.toLowerCase().includes('tiền')) position = 'Hậu vệ';
-            else if(position.toLowerCase().includes('tiền vệ')) position = 'Tiền vệ';
-            else if(position.toLowerCase().includes('đạo')) position = 'Tiền đạo';
-            newPlayers.push({ id: `p-${Date.now()}-${index}`, name, position });
+          
+          let separator = line.includes('\t') ? '\t' : ',';
+          const parts = line.split(separator).map(p => p.trim());
+          
+          if (parts.length >= 2) {
+             let namePart = "";
+             let posPart = "";
+             
+             if (!isNaN(parts[0]) || parts[0].toLowerCase() === 'stt') {
+                if (parts[0].toLowerCase() === 'stt') return;
+                namePart = parts[1];
+                posPart = parts[2] || 'Khác';
+             } else {
+                if (parts[0].toLowerCase().includes('tên')) return;
+                namePart = parts[0];
+                posPart = parts[1] || 'Khác';
+             }
+
+             let name = namePart;
+             let position = posPart;
+
+             if(position.toLowerCase().includes('thủ')) position = 'Thủ môn';
+             else if(position.toLowerCase().includes('hậu')) position = 'Hậu vệ';
+             else if(position.toLowerCase().includes('vệ') && !position.toLowerCase().includes('tiền')) position = 'Hậu vệ';
+             else if(position.toLowerCase().includes('tiền vệ')) position = 'Tiền vệ';
+             else if(position.toLowerCase().includes('đạo')) position = 'Tiền đạo';
+             else position = 'Khác';
+
+             if (name) {
+                newPlayers.push({ id: `p-${Date.now()}-${index}`, name, position });
+             }
           }
         });
 
@@ -347,8 +390,9 @@
           setCsvInput('');
           const newTeams = INITIAL_TEAMS.map((t, idx) => ({ ...t, name: config.teamNames[idx], players: [] }));
           setTeams(newTeams);
-          setTeamTurnIndex(0);
           await syncToCloud({ availablePlayers: newPlayers, teams: newTeams });
+        } else {
+          alert("Không nhận diện được cầu thủ nào. Bạn hãy copy đúng 2 cột (Tên, Vị trí) hoặc 3 cột (STT, Tên, Vị trí) từ Excel nhé!");
         }
       };
 
@@ -389,7 +433,6 @@
 
       return (
         <div className="fixed inset-0 flex flex-col bg-[#0a0f1c]">
-          {/* Nền Texture tĩnh, tắt bớt hiệu ứng trên Mobile */}
           <div className="absolute inset-0 z-0 opacity-20 pointer-events-none" style={{ backgroundImage: 'linear-gradient(to right, #ffffff05 1px, transparent 1px), linear-gradient(to bottom, #ffffff05 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-blue-600/10 blur-[80px] md:blur-[120px] rounded-full pointer-events-none z-0 transform-gpu"></div>
 
@@ -399,7 +442,7 @@
               <div className="relative cursor-pointer group" onClick={onBack} title="Quay lại chọn Role">
                 <div className="absolute inset-0 bg-amber-400 blur-md opacity-30 rounded-full group-hover:animate-ping"></div>
                 <div className="relative w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-amber-300 via-amber-500 to-amber-700 rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(245,158,11,0.2)] border border-amber-200/50 transform rotate-3">
-                  <IconTrophy className="text-slate-950" size={20} md:size={26} strokeWidth={2.5} />
+                  <IconTrophy className="text-slate-950" size={24} strokeWidth={2.5} />
                 </div>
               </div>
               <div>
@@ -430,7 +473,7 @@
               {role === 'admin' && (
                 <>
                   <button onClick={() => alert("Hãy gửi link này cho mọi người xem!")} className="p-2 md:p-2.5 bg-slate-800 hover:bg-slate-700 text-blue-400 rounded-lg transition border border-white/5 group hidden sm:block"><IconQrCode size={16} className="group-hover:scale-110 transition-transform" /></button>
-                  <button onClick={() => setShowSettings(true)} disabled={lottery.active} className="p-2 md:p-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg transition disabled:opacity-50 border border-white/5"><IconSettings size={16} md:size={18} /></button>
+                  <button onClick={() => setShowSettings(true)} disabled={lottery.active} className="p-2 md:p-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg transition disabled:opacity-50 border border-white/5"><IconSettings size={18} /></button>
                   <button onClick={triggerNextDraw} disabled={lottery.active || availablePlayers.length === 0}
                     className={`relative group overflow-hidden flex items-center space-x-2 px-4 py-2 md:px-8 md:py-3 rounded-xl font-black uppercase tracking-widest transition-all duration-300 text-sm md:text-base
                       ${lottery.active || availablePlayers.length === 0 ? 'bg-slate-800 text-slate-500 cursor-not-allowed border border-white/5' : 'bg-gradient-to-r from-amber-400 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-slate-950 shadow-[0_0_20px_rgba(245,158,11,0.3)]'}`}>
@@ -447,10 +490,9 @@
             </div>
           </header>
 
-          {/* MAIN CONTENT (CUỘN ĐƯỢC TOÀN BỘ TRÊN MOBILE) */}
           <main className="flex-1 p-3 md:p-6 flex flex-col xl:flex-row gap-4 md:gap-6 relative z-10 overflow-y-auto xl:overflow-hidden custom-scrollbar">
             
-            {/* CỘT 1: DANH SÁCH CHỜ (Cao cố định trên PC, cao cố định 300px trên Mobile để chừa chỗ cuộn xuống) */}
+            {/* CỘT DANH SÁCH CHỜ */}
             <div className="w-full xl:w-[320px] 2xl:w-[360px] flex flex-col h-[300px] xl:h-full flex-shrink-0">
               <div className="bg-slate-900/60 backdrop-blur-md rounded-2xl border border-white/10 p-4 flex-1 flex flex-col shadow-lg relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/5 blur-[40px] rounded-full transform-gpu"></div>
@@ -481,7 +523,7 @@
               </div>
             </div>
 
-            {/* CỘT 2: DANH SÁCH 6 ĐỘI BÓNG */}
+            {/* CỘT CÁC ĐỘI BÓNG */}
             <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5 content-start xl:overflow-y-auto custom-scrollbar xl:pr-2 pb-10 xl:pb-4">
               {teams.map((team) => (
                 <div key={team.id} className={`bg-slate-900/60 backdrop-blur-md rounded-2xl border border-white/10 flex flex-col h-[320px] md:h-[340px] relative overflow-hidden transition-all duration-500 ${lottery.team?.id === team.id && lottery.phase === 'result' ? 'ring-2 ring-white scale-[1.02] shadow-xl z-20' : team.shadow}`}>
@@ -508,11 +550,10 @@
             </div>
           </main>
 
-          {/* OVERLAY XỔ SỐ (CHE MÀN HÌNH) */}
+          {/* OVERLAY XỔ SỐ */}
           {lottery.active && (
             <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center overflow-hidden font-sans pointer-events-none">
               <div className="absolute inset-0 bg-[#020617]/95 backdrop-blur-md"></div>
-              {/* Giảm nhẹ hiệu ứng để điện thoại không lag */}
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150vw] h-[30vh] md:w-[120vw] md:h-[20vh] bg-amber-500/10 blur-[80px] md:blur-[100px] -rotate-12 animate-pulse transform-gpu"></div>
 
               {lottery.phase === 'result' && <div className="absolute inset-0 flex justify-center items-center opacity-30"><div className={`w-[600px] h-[600px] md:w-[900px] md:h-[900px] rounded-full blur-[100px] md:blur-[120px] bg-gradient-to-tr ${lottery.team?.colorFrom} ${lottery.team?.colorTo} transform-gpu`}></div></div>}
@@ -562,7 +603,7 @@
                       ))}
                     </div>
                   </div>
-                  <div className="border-t border-white/10 pt-6 md:pt-8"><h3 className="text-base md:text-lg font-black text-amber-400 uppercase tracking-widest mb-1 md:mb-2 flex items-center"><IconUpload className="mr-2" size={16}/> Nạp dữ liệu Excel</h3><p className="text-[10px] md:text-xs text-rose-400 mb-3 font-bold">* GHI ĐÈ toàn bộ danh sách chờ hiện tại.</p><textarea value={csvInput} onChange={(e) => setCsvInput(e.target.value)} placeholder="Copy 2 cột Excel (Tên, Vị trí) dán vào đây..." className="w-full h-32 md:h-40 bg-slate-950 border border-white/10 rounded-xl p-3 md:p-4 text-xs md:text-sm font-mono text-slate-300 custom-scrollbar focus:border-amber-400 focus:outline-none" /><button onClick={handleImportExcel} className="mt-3 md:mt-4 w-full bg-gradient-to-r from-slate-700 to-slate-600 hover:from-amber-500 hover:to-amber-600 text-white font-black uppercase tracking-widest py-3 md:py-3.5 rounded-xl transition-all shadow-lg text-sm md:text-base">Cập nhật Database</button></div>
+                  <div className="border-t border-white/10 pt-6 md:pt-8"><h3 className="text-base md:text-lg font-black text-amber-400 uppercase tracking-widest mb-1 md:mb-2 flex items-center"><IconUpload className="mr-2" size={16}/> Nạp dữ liệu Excel/CSV</h3><p className="text-[10px] md:text-xs text-rose-400 mb-3 font-bold">* Tự động bỏ qua số STT, nhận chuẩn file CSV/Excel</p><textarea value={csvInput} onChange={(e) => setCsvInput(e.target.value)} placeholder="Copy 2 cột (Tên, Vị trí) hoặc 3 cột (STT, Tên, Vị trí) dán vào đây..." className="w-full h-32 md:h-40 bg-slate-950 border border-white/10 rounded-xl p-3 md:p-4 text-xs md:text-sm font-mono text-slate-300 custom-scrollbar focus:border-amber-400 focus:outline-none" /><button onClick={handleImportExcel} className="mt-3 md:mt-4 w-full bg-gradient-to-r from-slate-700 to-slate-600 hover:from-amber-500 hover:to-amber-600 text-white font-black uppercase tracking-widest py-3 md:py-3.5 rounded-xl transition-all shadow-lg text-sm md:text-base">Cập nhật Database</button></div>
                 </div>
               </div>
             </div>
