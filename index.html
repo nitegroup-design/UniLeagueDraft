@@ -2,16 +2,14 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Hệ Thống Bốc Thăm UNI LEAGUE</title>
 
   <script src="https://cdn.tailwindcss.com"></script>
 
   <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
   <script src="https://unpkg.com/lucide@latest"></script>
 
   <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
@@ -19,14 +17,18 @@
   <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore-compat.js"></script>
 
   <style>
-    /* Custom Scrollbar and Animations */
+    /* Animations & Scrollbar */
     @keyframes fadeInRight { from { opacity: 0; transform: translateX(-15px); } to { opacity: 1; transform: translateX(0); } }
     .animate-fade-in-right { animation: fadeInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
     @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
     .animate-fade-in-up { animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-    .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+    
+    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
     .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 10px; }
+    
+    /* Chống nảy trang trên iOS */
+    body { overscroll-behavior-y: none; }
   </style>
 </head>
 <body class="bg-[#0a0f1c] text-slate-200 font-sans selection:bg-amber-500/30 overflow-hidden">
@@ -46,12 +48,14 @@
       measurementId: "G-F0VBYWWZSE"
     };
 
-    firebase.initializeApp(firebaseConfig);
+    if (!firebase.apps.length) {
+       firebase.initializeApp(firebaseConfig);
+    }
     const auth = firebase.auth();
     const db = firebase.firestore();
     const appId = 'unidraft-app';
 
-    // --- 2. MOCK DATA & CONSTANTS ---
+    // --- 2. MOCK DATA ---
     const INITIAL_TEAMS = [
       { id: 1, name: 'Đội 1', colorFrom: 'from-red-600', colorTo: 'to-red-900', shadow: 'shadow-red-500/20', textGlow: 'drop-shadow-[0_0_8px_rgba(220,38,38,0.8)]', players: [] },
       { id: 2, name: 'Đội 2', colorFrom: 'from-blue-600', colorTo: 'to-blue-900', shadow: 'shadow-blue-500/20', textGlow: 'drop-shadow-[0_0_8px_rgba(37,99,235,0.8)]', players: [] },
@@ -64,8 +68,7 @@
     const DEFAULT_CONFIG = { maxPlayersPerTeam: 7, teamNames: ['Đội 1', 'Đội 2', 'Đội 3', 'Đội 4', 'Đội 5', 'Đội 6'] };
     const DEFAULT_PASSCODE = "unidraft2024";
 
-    // --- 3. HELPER COMPONENTS (ICONS) ---
-    // Vì dùng CDN, ta tạo các component Icon đơn giản dùng SVG
+    // --- 3. ICONS ---
     const IconShield = ({ className, size=14 }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>;
     const IconGoal = ({ className, size=14 }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>;
     const IconFootprints = ({ className, size=14 }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M4 16v-2.38C4 11.5 5.97 9.5 8.38 9.5h7.24C18.03 9.5 20 11.5 20 13.62V16"/><path d="M12 22v-6"/><path d="M8 22v-6"/><path d="M16 22v-6"/><path d="M8 2a3 3 0 0 0-3 3"/><path d="M16 2a3 3 0 0 1 3 3"/></svg>;
@@ -79,7 +82,7 @@
     const IconRotateCcw = ({ className, size=14 }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>;
     const IconCheckCircle = ({ className, size=14 }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>;
     const IconQrCode = ({ className, size=18 }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="5" height="5" x="3" y="3" rx="1"/><rect width="5" height="5" x="16" y="3" rx="1"/><rect width="5" height="5" x="3" y="16" rx="1"/><path d="M21 16h-3a2 2 0 0 0-2 2v3"/><path d="M21 21v.01"/><path d="M12 7v3a2 2 0 0 1-2 2H7"/><path d="M3 12h.01"/><path d="M12 3h.01"/><path d="M12 16v.01"/><path d="M16 12h1"/><path d="M21 12v.01"/><path d="M12 21v-1"/></svg>;
-    const IconSettings = ({ className, size=18 }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>;
+    const IconSettings = ({ className, size=18 }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>;
     const IconDices = ({ className, size=20 }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="12" height="12" x="2" y="10" rx="2" ry="2"/><path d="m17.92 14 3.5-3.5a2.24 2.24 0 0 0 0-3l-5-4.92a2.24 2.24 0 0 0-3 0L10 6"/><path d="M6 18h.01"/><path d="M10 14h.01"/><path d="M15 6h.01"/><path d="M18 9h.01"/></svg>;
     const IconHexagon = ({ className, size=16, opacity }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} style={{opacity}}><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>;
     const IconChevronRight = ({ className, size=32 }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m9 18 6-6-6-6"/></svg>;
@@ -106,9 +109,9 @@
       }
     };
 
-    // --- 4. MAIN APP COMPONENT ---
     const { useState, useEffect, useRef } = React;
 
+    // --- 4. MAIN APP ---
     function App() {
       const [role, setRole] = useState(null);
       const [user, setUser] = useState(null);
@@ -125,7 +128,6 @@
             console.error("Auth error:", error);
             setDbError(true);
           });
-        
         const unsubscribe = auth.onAuthStateChanged((user) => setUser(user));
         return () => unsubscribe();
       }, []);
@@ -147,34 +149,34 @@
 
       if (!role) {
         return (
-          <div className="min-h-screen flex items-center justify-center p-6 relative">
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-amber-500/10 blur-[120px] rounded-full pointer-events-none z-0"></div>
-            <div className="bg-slate-900/60 backdrop-blur-xl border border-white/10 p-10 rounded-3xl shadow-2xl z-10 max-w-2xl w-full text-center">
+          <div className="fixed inset-0 bg-[#0a0f1c] flex items-center justify-center p-4 md:p-6 relative overflow-hidden font-sans">
+            {/* Background Blob - Giảm Blur trên mobile */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-amber-500/10 blur-[80px] md:blur-[120px] rounded-full pointer-events-none z-0 transform-gpu"></div>
+            
+            <div className="bg-slate-900/80 backdrop-blur-md md:backdrop-blur-xl border border-white/10 p-6 md:p-10 rounded-3xl shadow-2xl z-10 max-w-2xl w-full text-center">
               <div className="flex justify-center mb-6">
-                <div className="w-20 h-20 bg-gradient-to-br from-amber-300 to-amber-700 rounded-2xl flex items-center justify-center shadow-[0_0_30px_rgba(245,158,11,0.4)]">
-                  <IconTrophy className="text-slate-950" size={40} />
+                <div className="w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-amber-300 to-amber-700 rounded-2xl flex items-center justify-center shadow-[0_0_30px_rgba(245,158,11,0.4)]">
+                  <IconTrophy className="text-slate-950" size={32} md:size={40} />
                 </div>
               </div>
-              <h1 className="text-4xl font-black text-white uppercase tracking-wider mb-2">Hệ Thống Draft Realtime</h1>
-              <p className="text-slate-400 mb-10">Vui lòng chọn vai trò để truy cập hệ thống UNI LEAGUE</p>
+              <h1 className="text-2xl md:text-4xl font-black text-white uppercase tracking-wider mb-2">Hệ Thống Draft</h1>
+              <p className="text-xs md:text-sm text-slate-400 mb-8">Vui lòng chọn vai trò để truy cập UNI LEAGUE</p>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative">
-                <button onClick={() => setShowAuthModal(true)}
-                  className="group relative bg-slate-800 hover:bg-slate-700 border border-white/5 rounded-2xl p-8 flex flex-col items-center transition-all duration-300 hover:border-amber-500/50 hover:shadow-[0_0_30px_rgba(245,158,11,0.2)]">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 relative">
+                <button onClick={() => setShowAuthModal(true)} className="group relative bg-slate-800 hover:bg-slate-700 border border-white/5 rounded-2xl p-6 md:p-8 flex flex-col items-center transition-all duration-300 hover:border-amber-500/50 hover:shadow-[0_0_30px_rgba(245,158,11,0.2)]">
                   <div className="absolute top-4 right-4 bg-slate-900 p-1.5 rounded-md border border-white/10 text-amber-500/50"><IconLock size={14} /></div>
-                  <IconMonitorPlay size={48} className="text-amber-400 mb-4 group-hover:scale-110 transition-transform" />
-                  <h2 className="text-xl font-bold text-white mb-2">Màn hình Livestream</h2>
-                  <p className="text-sm text-slate-400 text-center">Phòng dành cho MC và Quản trị viên (Cần Passcode)</p>
+                  <IconMonitorPlay size={40} className="text-amber-400 mb-3 group-hover:scale-110 transition-transform" />
+                  <h2 className="text-lg md:text-xl font-bold text-white mb-2">Màn hình Livestream</h2>
+                  <p className="text-xs text-slate-400 text-center">Phòng dành cho MC và Quản trị viên (Cần Passcode)</p>
                 </button>
 
-                <button onClick={() => setRole('viewer')}
-                  className="group bg-slate-800 hover:bg-slate-700 border border-white/5 rounded-2xl p-8 flex flex-col items-center transition-all duration-300 hover:border-blue-500/50 hover:shadow-[0_0_30px_rgba(59,130,246,0.2)]">
-                  <IconSmartphone size={48} className="text-blue-400 mb-4 group-hover:scale-110 transition-transform" />
-                  <h2 className="text-xl font-bold text-white mb-2">Khán giả theo dõi</h2>
-                  <p className="text-sm text-slate-400 text-center">Xem kết quả bốc thăm trực tiếp trên thời gian thực</p>
+                <button onClick={() => setRole('viewer')} className="group bg-slate-800 hover:bg-slate-700 border border-white/5 rounded-2xl p-6 md:p-8 flex flex-col items-center transition-all duration-300 hover:border-blue-500/50 hover:shadow-[0_0_30px_rgba(59,130,246,0.2)]">
+                  <IconSmartphone size={40} className="text-blue-400 mb-3 group-hover:scale-110 transition-transform" />
+                  <h2 className="text-lg md:text-xl font-bold text-white mb-2">Khán giả theo dõi</h2>
+                  <p className="text-xs text-slate-400 text-center">Xem kết quả bốc thăm trên điện thoại ở nhà</p>
                 </button>
               </div>
-              {dbError && <p className="text-red-400 mt-6 text-sm font-bold bg-red-900/20 p-3 rounded-lg border border-red-500/20"><IconCloudOff size={16} className="inline mr-2"/> Hệ thống Database chưa kết nối được. Vui lòng kiểm tra lại mạng!</p>}
+              {dbError && <p className="text-red-400 mt-6 text-xs font-bold bg-red-900/20 p-3 rounded-lg border border-red-500/20"><IconCloudOff size={14} className="inline mr-2"/> Database chưa kết nối. Vui lòng kiểm tra lại mạng!</p>}
             </div>
 
             {showAuthModal && (
@@ -188,7 +190,7 @@
                   {authError && <p className="text-rose-500 text-xs font-bold mb-4">{authError}</p>}
                   <div className="flex space-x-3 mt-6">
                     <button onClick={() => {setShowAuthModal(false); setAuthError(''); setPasscodeInput('');}} className="flex-1 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-bold transition">Hủy</button>
-                    <button onClick={verifyPasscode} className="flex-1 py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black rounded-xl transition shadow-lg shadow-amber-500/20">Xác nhận</button>
+                    <button onClick={verifyPasscode} className="flex-1 py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-black rounded-xl transition shadow-lg">Xác nhận</button>
                   </div>
                 </div>
               </div>
@@ -216,7 +218,6 @@
 
       useEffect(() => {
         if (!user || dbError) return;
-
         const docRef = db.collection('artifacts').doc(appId).collection('public').doc('unidraft_main');
         
         const unsubscribe = docRef.onSnapshot((docSnap) => {
@@ -257,7 +258,6 @@
 
       const triggerNextDraw = async () => {
         if (availablePlayers.length === 0 || lottery.active) return;
-
         let targetPos = 'Khác';
         let playerPool = [];
         for (let pos of POSITIONS) {
@@ -268,7 +268,6 @@
         if (playerPool.length === 0) return;
 
         const actualPlayer = playerPool[Math.floor(Math.random() * playerPool.length)];
-
         let attempts = 0;
         let currentIdx = teamTurnIndex;
         while (teams[currentIdx].players.length >= config.maxPlayersPerTeam && attempts < teams.length) {
@@ -279,7 +278,6 @@
 
         const actualTeam = teams[currentIdx];
         setTeamTurnIndex((currentIdx + 1) % teams.length);
-
         const cmdId = Date.now().toString();
         await syncToCloud({ lotteryCmd: { id: cmdId, player: actualPlayer, team: actualTeam } });
       };
@@ -309,7 +307,6 @@
         if (role === 'admin') {
           const newTeams = teams.map(t => t.id === actualTeam.id ? { ...t, players: [...t.players, actualPlayer] } : t);
           const newAvailable = availablePlayers.filter(p => p.id !== actualPlayer.id);
-          
           setTeams(newTeams);
           setAvailablePlayers(newAvailable);
           await syncToCloud({ teams: newTeams, availablePlayers: newAvailable });
@@ -391,84 +388,89 @@
       const totalPlayers = availablePlayers.length + totalDrafted;
 
       return (
-        <div className="min-h-screen relative flex flex-col">
+        <div className="fixed inset-0 flex flex-col bg-[#0a0f1c]">
+          {/* Nền Texture tĩnh, tắt bớt hiệu ứng trên Mobile */}
           <div className="absolute inset-0 z-0 opacity-20 pointer-events-none" style={{ backgroundImage: 'linear-gradient(to right, #ffffff05 1px, transparent 1px), linear-gradient(to bottom, #ffffff05 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-blue-600/20 blur-[120px] rounded-full pointer-events-none z-0"></div>
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-blue-600/10 blur-[80px] md:blur-[120px] rounded-full pointer-events-none z-0 transform-gpu"></div>
 
-          <header className="relative z-10 bg-slate-900/60 backdrop-blur-xl border-b border-white/5 px-6 py-4 flex justify-between items-center shadow-2xl">
-            <div className="flex items-center space-x-4">
+          {/* HEADER */}
+          <header className="relative z-20 bg-slate-900/80 backdrop-blur-md border-b border-white/5 px-4 md:px-6 py-3 md:py-4 flex justify-between items-center shadow-lg flex-shrink-0">
+            <div className="flex items-center space-x-3 md:space-x-4">
               <div className="relative cursor-pointer group" onClick={onBack} title="Quay lại chọn Role">
-                <div className="absolute inset-0 bg-amber-400 blur-md opacity-40 rounded-full group-hover:animate-ping"></div>
-                <div className="relative w-12 h-12 bg-gradient-to-br from-amber-300 via-amber-500 to-amber-700 rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(245,158,11,0.3)] border border-amber-200/50 transform rotate-3">
-                  <IconTrophy className="text-slate-950" size={26} strokeWidth={2.5} />
+                <div className="absolute inset-0 bg-amber-400 blur-md opacity-30 rounded-full group-hover:animate-ping"></div>
+                <div className="relative w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-amber-300 via-amber-500 to-amber-700 rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(245,158,11,0.2)] border border-amber-200/50 transform rotate-3">
+                  <IconTrophy className="text-slate-950" size={20} md:size={26} strokeWidth={2.5} />
                 </div>
               </div>
               <div>
-                <h1 className="text-2xl md:text-3xl font-black tracking-tighter uppercase text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-amber-200 drop-shadow-lg">UNI LEAGUE</h1>
-                <div className="flex items-center space-x-2 text-xs font-semibold tracking-widest text-slate-400 uppercase mt-0.5">
+                <h1 className="text-xl md:text-3xl font-black tracking-tighter uppercase text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-amber-200 drop-shadow-lg">UNI LEAGUE</h1>
+                <div className="flex items-center space-x-2 text-[10px] md:text-xs font-semibold tracking-widest text-slate-400 uppercase mt-0.5">
                   <span className={`w-2 h-2 rounded-full animate-pulse ${role === 'admin' ? 'bg-red-500' : 'bg-emerald-500'}`}></span>
-                  <span>{role === 'admin' ? 'Live Admin Dashboard' : 'Live Viewer Mode'}</span>
+                  <span className="hidden sm:inline">{role === 'admin' ? 'Live Admin Dashboard' : 'Live Viewer Mode'}</span>
+                  <span className="sm:hidden">{role === 'admin' ? 'Admin' : 'Viewer'}</span>
                 </div>
               </div>
             </div>
 
-            <div className="flex space-x-3 items-center">
+            <div className="flex space-x-2 md:space-x-3 items-center">
               {role === 'admin' && !dbError && (
                  <div className="hidden lg:flex items-center space-x-2 mr-2 px-3 py-1.5 rounded-lg bg-slate-800/50 border border-white/5">
                     {syncStatus === 'saving' ? (
                        <><IconRotateCcw size={14} className="text-amber-400 animate-spin" /><span className="text-[10px] text-amber-400 uppercase tracking-widest font-bold">Đang lưu...</span></>
                     ) : (
-                       <><IconCheckCircle size={14} className="text-emerald-400" /><span className="text-[10px] text-emerald-400 uppercase tracking-widest font-bold">Đã lưu an toàn</span></>
+                       <><IconCheckCircle size={14} className="text-emerald-400" /><span className="text-[10px] text-emerald-400 uppercase tracking-widest font-bold">Đã lưu</span></>
                     )}
                  </div>
               )}
-              <div className="text-right mr-4 hidden sm:block bg-slate-800/50 px-4 py-2 rounded-lg border border-white/5">
-                <div className="text-[10px] text-slate-400 uppercase tracking-wider font-bold mb-0.5">Tình trạng Draft</div>
-                <div className="font-black text-amber-400 text-base">{totalDrafted} <span className="text-slate-500 font-medium">/ {totalPlayers}</span></div>
+              <div className="text-right mr-2 md:mr-4 hidden sm:block bg-slate-800/50 px-3 py-1.5 md:px-4 md:py-2 rounded-lg border border-white/5">
+                <div className="text-[9px] md:text-[10px] text-slate-400 uppercase tracking-wider font-bold mb-0.5">Tình trạng</div>
+                <div className="font-black text-amber-400 text-sm md:text-base">{totalDrafted} <span className="text-slate-500 font-medium">/ {totalPlayers}</span></div>
               </div>
               
               {role === 'admin' && (
                 <>
-                  <button onClick={() => alert("Hãy copy đường link trang web này và tạo mã QR để khán giả quét nhé!")} className="p-2.5 bg-slate-800 hover:bg-slate-700 text-blue-400 rounded-lg transition border border-white/5 group"><IconQrCode size={18} className="group-hover:scale-110 transition-transform" /></button>
-                  <button onClick={() => setShowSettings(true)} disabled={lottery.active} className="p-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg transition disabled:opacity-50 border border-white/5"><IconSettings size={18} /></button>
+                  <button onClick={() => alert("Hãy gửi link này cho mọi người xem!")} className="p-2 md:p-2.5 bg-slate-800 hover:bg-slate-700 text-blue-400 rounded-lg transition border border-white/5 group hidden sm:block"><IconQrCode size={16} className="group-hover:scale-110 transition-transform" /></button>
+                  <button onClick={() => setShowSettings(true)} disabled={lottery.active} className="p-2 md:p-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg transition disabled:opacity-50 border border-white/5"><IconSettings size={16} md:size={18} /></button>
                   <button onClick={triggerNextDraw} disabled={lottery.active || availablePlayers.length === 0}
-                    className={`relative group overflow-hidden flex items-center space-x-2 px-6 py-2.5 md:px-8 md:py-3 rounded-xl font-black uppercase tracking-widest transition-all duration-300
-                      ${lottery.active || availablePlayers.length === 0 ? 'bg-slate-800 text-slate-500 cursor-not-allowed border border-white/5' : 'bg-gradient-to-r from-amber-400 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-slate-950 shadow-[0_0_30px_rgba(245,158,11,0.3)] hover:-translate-y-0.5'}`}>
-                    {(!lottery.active && availablePlayers.length > 0) && <IconDices size={20} className="animate-bounce" />}
-                    {lottery.active && <IconDices size={20} />}
-                    <span className="relative z-10 hidden md:inline">{lottery.active ? 'WAIT...' : availablePlayers.length === 0 ? 'TRỐNG' : 'NEXT DRAW'}</span>
+                    className={`relative group overflow-hidden flex items-center space-x-2 px-4 py-2 md:px-8 md:py-3 rounded-xl font-black uppercase tracking-widest transition-all duration-300 text-sm md:text-base
+                      ${lottery.active || availablePlayers.length === 0 ? 'bg-slate-800 text-slate-500 cursor-not-allowed border border-white/5' : 'bg-gradient-to-r from-amber-400 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-slate-950 shadow-[0_0_20px_rgba(245,158,11,0.3)]'}`}>
+                    <IconDices size={18} className={(!lottery.active && availablePlayers.length > 0) ? "animate-bounce hidden sm:block" : "hidden sm:block"} />
+                    <span className="relative z-10">{lottery.active ? 'WAIT' : availablePlayers.length === 0 ? 'TRỐNG' : 'NEXT'}</span>
                   </button>
                 </>
               )}
               {role === 'viewer' && (
-                <div className="bg-emerald-500/10 border border-emerald-500/30 px-4 py-2 rounded-xl flex items-center text-emerald-400 text-sm font-bold animate-pulse shadow-[0_0_15px_rgba(16,185,129,0.2)]">
-                   <IconMonitorPlay size={16} className="mr-2" /> Đang xem trực tiếp
+                <div className="bg-emerald-500/10 border border-emerald-500/30 px-3 py-1.5 md:px-4 md:py-2 rounded-xl flex items-center text-emerald-400 text-xs md:text-sm font-bold animate-pulse shadow-[0_0_15px_rgba(16,185,129,0.2)]">
+                   <IconMonitorPlay size={14} className="mr-1 md:mr-2" /> Live
                 </div>
               )}
             </div>
           </header>
 
-          <main className="flex-1 p-6 grid grid-cols-1 xl:grid-cols-4 gap-6 relative z-10 h-[calc(100vh-88px)]">
-            <div className="xl:col-span-1 flex flex-col h-full">
-              <div className="bg-slate-900/40 backdrop-blur-md rounded-2xl border border-white/10 p-5 flex-1 flex flex-col shadow-2xl relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 blur-[60px] rounded-full"></div>
-                <h2 className="text-sm font-black text-white uppercase tracking-widest mb-4 flex items-center border-b border-white/10 pb-4">
-                  <IconHexagon className="mr-2 text-amber-400" size={16} opacity={0.2} /> Danh sách chờ
-                  <span className="ml-auto bg-amber-500/20 text-amber-400 px-2.5 py-0.5 rounded-full text-xs">{availablePlayers.length}</span>
+          {/* MAIN CONTENT (CUỘN ĐƯỢC TOÀN BỘ TRÊN MOBILE) */}
+          <main className="flex-1 p-3 md:p-6 flex flex-col xl:flex-row gap-4 md:gap-6 relative z-10 overflow-y-auto xl:overflow-hidden custom-scrollbar">
+            
+            {/* CỘT 1: DANH SÁCH CHỜ (Cao cố định trên PC, cao cố định 300px trên Mobile để chừa chỗ cuộn xuống) */}
+            <div className="w-full xl:w-[320px] 2xl:w-[360px] flex flex-col h-[300px] xl:h-full flex-shrink-0">
+              <div className="bg-slate-900/60 backdrop-blur-md rounded-2xl border border-white/10 p-4 flex-1 flex flex-col shadow-lg relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/5 blur-[40px] rounded-full transform-gpu"></div>
+                <h2 className="text-xs md:text-sm font-black text-white uppercase tracking-widest mb-3 flex items-center border-b border-white/10 pb-3">
+                  <IconHexagon className="mr-2 text-amber-400" size={14} opacity={0.2} /> Danh sách chờ
+                  <span className="ml-auto bg-amber-500/20 text-amber-400 px-2.5 py-0.5 rounded-full text-[10px] md:text-xs">{availablePlayers.length}</span>
                 </h2>
                 {availablePlayers.length === 0 ? (
-                   <div className="text-slate-500 text-sm text-center mt-10 italic border border-dashed border-slate-700 p-6 rounded-xl bg-slate-800/30">Danh sách trống. <br/><br/>{role === 'admin' ? "Vào Cài đặt -> Nạp dữ liệu từ Excel để bắt đầu!" : "Chờ Admin nạp dữ liệu..."}</div>
+                   <div className="text-slate-500 text-xs md:text-sm text-center mt-6 md:mt-10 italic border border-dashed border-slate-700/50 p-4 rounded-xl bg-slate-800/20">Trống. <br/>{role === 'admin' ? "Nạp dữ liệu từ Cài đặt!" : "Chờ nạp..."}</div>
                 ) : (
-                  <div className="overflow-y-auto flex-1 pr-3 space-y-5 custom-scrollbar pb-4">
+                  <div className="overflow-y-auto flex-1 pr-2 space-y-4 custom-scrollbar pb-2">
                     {POSITIONS.map(pos => {
                       const playersInPos = availablePlayers.filter(p => p.position === pos);
                       if (playersInPos.length === 0) return null;
                       return (
                         <div key={pos} className="relative">
-                          <div className="sticky top-0 bg-slate-900/90 backdrop-blur-sm z-10 py-2 mb-2 text-[11px] font-black text-slate-400 uppercase tracking-widest flex items-center"><div className="w-1.5 h-1.5 rounded-full bg-slate-500 mr-2"></div>{pos} <span className="ml-1 opacity-50">({playersInPos.length})</span></div>
+                          <div className="sticky top-0 bg-slate-900/95 backdrop-blur-sm z-10 py-1.5 mb-2 text-[10px] md:text-[11px] font-black text-slate-400 uppercase tracking-widest flex items-center"><div className="w-1.5 h-1.5 rounded-full bg-slate-500 mr-2"></div>{pos} <span className="ml-1 opacity-50">({playersInPos.length})</span></div>
                           <div className="space-y-1.5">
                             {playersInPos.map(p => (
-                              <div key={p.id} className={`text-sm py-2 px-3 bg-white/5 border border-white/5 rounded-lg flex justify-between items-center transition-all duration-300 ${lottery.player?.id === p.id && lottery.phase !== '' ? 'bg-amber-500 text-slate-950 font-bold scale-[1.02] shadow-[0_0_20px_rgba(245,158,11,0.4)] border-amber-400' : 'text-slate-300'}`}><span className="truncate">{p.name}</span></div>
+                              <div key={p.id} className={`text-xs md:text-sm py-2 px-3 bg-white/5 border border-white/5 rounded-lg flex justify-between items-center transition-all duration-300 ${lottery.player?.id === p.id && lottery.phase !== '' ? 'bg-amber-500 text-slate-950 font-bold scale-[1.02] shadow-[0_0_15px_rgba(245,158,11,0.4)] border-amber-400' : 'text-slate-300'}`}><span className="truncate">{p.name}</span></div>
                             ))}
                           </div>
                         </div>
@@ -479,25 +481,26 @@
               </div>
             </div>
 
-            <div className="xl:col-span-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 h-full content-start overflow-y-auto custom-scrollbar pr-2 pb-4">
+            {/* CỘT 2: DANH SÁCH 6 ĐỘI BÓNG */}
+            <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5 content-start xl:overflow-y-auto custom-scrollbar xl:pr-2 pb-10 xl:pb-4">
               {teams.map((team) => (
-                <div key={team.id} className={`bg-slate-900/40 backdrop-blur-md rounded-2xl border border-white/10 flex flex-col h-[340px] relative overflow-hidden transition-all duration-700 ${lottery.team?.id === team.id && lottery.phase === 'result' ? 'ring-2 ring-white scale-[1.03] shadow-2xl z-20' : team.shadow}`}>
-                  {lottery.team?.id === team.id && lottery.phase === 'result' && <div className={`absolute inset-0 opacity-20 bg-gradient-to-br ${team.colorFrom} ${team.colorTo} animate-pulse z-0`}></div>}
-                  <div className={`relative z-10 p-4 flex justify-between items-center bg-gradient-to-r ${team.colorFrom} ${team.colorTo} shadow-lg`}>
-                    <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20 mix-blend-overlay"></div>
-                    <h3 className={`font-black text-xl text-white tracking-wide uppercase italic ${team.textGlow} relative z-10`}>{team.name}</h3>
-                    <div className="relative z-10 bg-black/40 px-3 py-1 rounded-lg border border-white/20 text-sm font-black text-white flex items-center"><IconUsers size={14} className="mr-1.5 opacity-70" />{team.players.length}<span className="text-white/50 mx-0.5">/</span>{config.maxPlayersPerTeam}</div>
+                <div key={team.id} className={`bg-slate-900/60 backdrop-blur-md rounded-2xl border border-white/10 flex flex-col h-[320px] md:h-[340px] relative overflow-hidden transition-all duration-500 ${lottery.team?.id === team.id && lottery.phase === 'result' ? 'ring-2 ring-white scale-[1.02] shadow-xl z-20' : team.shadow}`}>
+                  {lottery.team?.id === team.id && lottery.phase === 'result' && <div className={`absolute inset-0 opacity-20 bg-gradient-to-br ${team.colorFrom} ${team.colorTo} animate-pulse z-0 transform-gpu`}></div>}
+                  <div className={`relative z-10 p-3 md:p-4 flex justify-between items-center bg-gradient-to-r ${team.colorFrom} ${team.colorTo} shadow-md`}>
+                    <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10 mix-blend-overlay pointer-events-none"></div>
+                    <h3 className={`font-black text-lg md:text-xl text-white tracking-wide uppercase italic ${team.textGlow} relative z-10`}>{team.name}</h3>
+                    <div className="relative z-10 bg-black/40 px-2.5 py-1 rounded-lg border border-white/20 text-xs md:text-sm font-black text-white flex items-center"><IconUsers size={12} className="mr-1 md:mr-1.5 opacity-70" />{team.players.length}<span className="text-white/50 mx-0.5">/</span>{config.maxPlayersPerTeam}</div>
                   </div>
-                  <div className="p-3 flex-1 flex flex-col space-y-2 overflow-y-auto custom-scrollbar relative z-10">
+                  <div className="p-2.5 md:p-3 flex-1 flex flex-col space-y-2 overflow-y-auto custom-scrollbar relative z-10">
                     {team.players.map((p, i) => (
-                      <div key={p.id} className="group relative flex items-center bg-slate-800/50 border border-white/5 p-2.5 rounded-xl animate-fade-in-right">
-                        <div className="w-8 text-center text-slate-500/50 text-xl font-black italic mr-3">{(i + 1).toString().padStart(2, '0')}</div>
-                        <div className="flex-1 font-bold text-slate-200 text-[15px] truncate mr-2">{p.name}</div>
-                        <div className={`text-[10px] px-2 py-1 rounded-md border flex items-center font-bold tracking-wider uppercase ${getPositionColor(p.position)}`}>{p.position}</div>
+                      <div key={p.id} className="group relative flex items-center bg-slate-800/50 border border-white/5 p-2 md:p-2.5 rounded-xl animate-fade-in-right">
+                        <div className="w-6 md:w-8 text-center text-slate-500/50 text-base md:text-xl font-black italic mr-2 md:mr-3">{(i + 1).toString().padStart(2, '0')}</div>
+                        <div className="flex-1 font-bold text-slate-200 text-sm md:text-[15px] truncate mr-2">{p.name}</div>
+                        <div className={`text-[9px] md:text-[10px] px-1.5 py-0.5 md:px-2 md:py-1 rounded-md border flex items-center font-bold tracking-wider uppercase ${getPositionColor(p.position)}`}>{p.position}</div>
                       </div>
                     ))}
                     {Array.from({ length: Math.max(0, config.maxPlayersPerTeam - team.players.length) }).map((_, i) => (
-                      <div key={`empty-${i}`} className="flex items-center bg-slate-800/20 border border-dashed border-white/10 p-2.5 rounded-xl opacity-50"><div className="w-8 text-center text-slate-700 text-xl font-black italic mr-3">{(team.players.length + i + 1).toString().padStart(2, '0')}</div><div className="flex-1 text-slate-600 text-sm italic font-medium">Slot trống...</div></div>
+                      <div key={`empty-${i}`} className="flex items-center bg-slate-800/20 border border-dashed border-white/10 p-2 md:p-2.5 rounded-xl opacity-40"><div className="w-6 md:w-8 text-center text-slate-700 text-base md:text-xl font-black italic mr-2 md:mr-3">{(team.players.length + i + 1).toString().padStart(2, '0')}</div><div className="flex-1 text-slate-600 text-xs md:text-sm italic font-medium">Trống...</div></div>
                     ))}
                   </div>
                 </div>
@@ -505,24 +508,30 @@
             </div>
           </main>
 
+          {/* OVERLAY XỔ SỐ (CHE MÀN HÌNH) */}
           {lottery.active && (
-            <div className="fixed inset-0 z-50 flex flex-col items-center justify-center overflow-hidden font-sans">
-              <div className="absolute inset-0 bg-[#020617]/90 backdrop-blur-xl"></div>
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120vw] h-[20vh] bg-amber-500/10 blur-[100px] -rotate-12 animate-pulse"></div>
-              {lottery.phase === 'result' && <div className="absolute inset-0 pointer-events-none flex justify-center items-center opacity-40"><div className={`w-[900px] h-[900px] rounded-full blur-[120px] bg-gradient-to-tr ${lottery.team?.colorFrom} ${lottery.team?.colorTo}`}></div></div>}
-              <h2 className={`text-xl md:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-slate-300 to-white mb-16 tracking-[0.3em] uppercase z-10 relative ${lottery.phase === 'result' ? 'animate-bounce text-amber-400 from-amber-200 to-amber-500 drop-shadow-[0_0_10px_rgba(245,158,11,0.5)]' : 'animate-pulse'}`}>{lottery.phase === 'spin_player' ? 'Hệ thống đang lựa chọn' : lottery.phase === 'show_player' ? 'Cầu thủ được chọn' : lottery.phase === 'spin_team' ? 'Tìm kiếm đội bóng' : 'Xác nhận gia nhập'}</h2>
+            <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center overflow-hidden font-sans pointer-events-none">
+              <div className="absolute inset-0 bg-[#020617]/95 backdrop-blur-md"></div>
+              {/* Giảm nhẹ hiệu ứng để điện thoại không lag */}
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150vw] h-[30vh] md:w-[120vw] md:h-[20vh] bg-amber-500/10 blur-[80px] md:blur-[100px] -rotate-12 animate-pulse transform-gpu"></div>
+
+              {lottery.phase === 'result' && <div className="absolute inset-0 flex justify-center items-center opacity-30"><div className={`w-[600px] h-[600px] md:w-[900px] md:h-[900px] rounded-full blur-[100px] md:blur-[120px] bg-gradient-to-tr ${lottery.team?.colorFrom} ${lottery.team?.colorTo} transform-gpu`}></div></div>}
+
+              <h2 className={`text-lg md:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-slate-300 to-white mb-10 md:mb-16 tracking-[0.2em] md:tracking-[0.3em] uppercase z-10 relative text-center px-4 ${lottery.phase === 'result' ? 'animate-bounce text-amber-400 from-amber-200 to-amber-500 drop-shadow-[0_0_10px_rgba(245,158,11,0.5)]' : 'animate-pulse'}`}>{lottery.phase === 'spin_player' ? 'Đang lựa chọn' : lottery.phase === 'show_player' ? 'Cầu thủ được chọn' : lottery.phase === 'spin_team' ? 'Tìm đội bóng' : 'Xác nhận gia nhập'}</h2>
+
               <div className="relative z-10 w-full max-w-4xl flex flex-col items-center">
-                <div className={`relative bg-slate-900 border border-white/10 rounded-3xl p-10 md:p-14 text-center transform transition-all duration-500 w-11/12 ${lottery.phase !== 'spin_player' ? 'scale-100 border-amber-500/50 shadow-[0_0_80px_rgba(245,158,11,0.15)] bg-gradient-to-b from-slate-800 to-slate-900' : 'scale-95 opacity-80'} ${(lottery.phase === 'spin_team' || lottery.phase === 'result') ? '-translate-y-10 scale-75 md:scale-90' : ''}`}>
+                <div className={`relative bg-slate-900 border border-white/10 rounded-3xl p-6 md:p-14 text-center transform transition-all duration-500 w-11/12 md:w-10/12 ${lottery.phase !== 'spin_player' ? 'scale-100 border-amber-500/50 shadow-[0_0_40px_rgba(245,158,11,0.2)] bg-gradient-to-b from-slate-800 to-slate-900' : 'scale-95 opacity-80'} ${(lottery.phase === 'spin_team' || lottery.phase === 'result') ? '-translate-y-6 md:-translate-y-10 scale-75 md:scale-90' : ''}`}>
                    {lottery.phase !== 'spin_player' && <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-px bg-gradient-to-r from-transparent via-amber-400 to-transparent"></div>}
-                   <div className="text-amber-400/80 text-sm md:text-lg font-black uppercase tracking-[0.4em] mb-4 flex justify-center items-center">{getPositionIcon(lottery.player?.position || 'Khác')} <span className="ml-3">{lottery.player?.position || 'Vị trí'}</span></div>
-                   <div className="text-4xl md:text-8xl font-black text-white uppercase italic tracking-tighter drop-shadow-2xl">{lottery.player?.name || '...'}</div>
+                   <div className="text-amber-400/80 text-xs md:text-lg font-black uppercase tracking-[0.3em] md:tracking-[0.4em] mb-3 md:mb-4 flex justify-center items-center">{getPositionIcon(lottery.player?.position || 'Khác')} <span className="ml-2 md:ml-3">{lottery.player?.position || 'Vị trí'}</span></div>
+                   <div className="text-3xl sm:text-5xl md:text-8xl font-black text-white uppercase italic tracking-tighter drop-shadow-xl">{lottery.player?.name || '...'}</div>
                 </div>
+
                 {(lottery.phase === 'spin_team' || lottery.phase === 'result') && (
-                  <div className="flex flex-col items-center animate-fade-in-up -mt-6 w-11/12">
-                    <div className="bg-slate-900 p-3 rounded-full mb-4 z-20 border border-white/10 shadow-2xl"><IconChevronRight className="rotate-90 text-amber-400" size={32} /></div>
-                    <div className={`relative rounded-3xl p-10 md:p-14 w-full text-center transform transition-all duration-700 border-2 overflow-hidden ${lottery.phase === 'result' ? `scale-110 shadow-[0_0_100px_rgba(255,255,255,0.2)] border-white/50 bg-gradient-to-br ${lottery.team?.colorFrom} ${lottery.team?.colorTo}` : 'border-white/10 bg-slate-800'}`}>
-                      {lottery.phase === 'result' && <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-30 mix-blend-overlay"></div>}
-                      <div className={`text-4xl md:text-8xl font-black uppercase italic tracking-tighter relative z-10 ${lottery.phase === 'result' ? 'text-white drop-shadow-2xl' : 'text-slate-500'}`}>{lottery.team?.name || '???'}</div>
+                  <div className="flex flex-col items-center animate-fade-in-up -mt-4 md:-mt-6 w-11/12 md:w-10/12">
+                    <div className="bg-slate-900 p-2 md:p-3 rounded-full mb-3 md:mb-4 z-20 border border-white/10 shadow-xl"><IconChevronRight className="rotate-90 text-amber-400" size={24} /></div>
+                    <div className={`relative rounded-3xl p-6 md:p-14 w-full text-center transform transition-all duration-700 border-2 overflow-hidden ${lottery.phase === 'result' ? `scale-[1.05] md:scale-110 shadow-[0_0_50px_rgba(255,255,255,0.15)] border-white/50 bg-gradient-to-br ${lottery.team?.colorFrom} ${lottery.team?.colorTo}` : 'border-white/10 bg-slate-800'}`}>
+                      {lottery.phase === 'result' && <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20 mix-blend-overlay"></div>}
+                      <div className={`text-3xl sm:text-5xl md:text-8xl font-black uppercase italic tracking-tighter relative z-10 ${lottery.phase === 'result' ? 'text-white drop-shadow-xl' : 'text-slate-500'}`}>{lottery.team?.name || '???'}</div>
                     </div>
                   </div>
                 )}
@@ -530,29 +539,30 @@
             </div>
           )}
 
+          {/* MODAL CÀI ĐẶT */}
           {showSettings && role === 'admin' && (
-            <div className="fixed inset-0 bg-[#020617]/80 backdrop-blur-md flex items-center justify-center z-50 p-4 font-sans">
-              <div className="bg-slate-900 border border-white/10 rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
-                <div className="p-5 border-b border-white/10 flex justify-between items-center bg-slate-800/50"><h2 className="text-xl font-black tracking-widest uppercase flex items-center text-white"><IconSettings className="mr-3 text-amber-400" size={20} /> Cấu hình giải đấu (Admin)</h2><button onClick={() => setShowSettings(false)} className="text-slate-400 hover:text-white transition-colors bg-white/5 p-2 rounded-lg"><IconX size={20} /></button></div>
-                <div className="p-6 overflow-y-auto space-y-8 custom-scrollbar">
-                  <div className="flex space-x-4">
-                     <button onClick={handleExportData} className="flex-1 bg-emerald-600/20 hover:bg-emerald-600/40 border border-emerald-500/30 text-emerald-400 rounded-xl p-4 flex flex-col items-center justify-center transition-all group"><IconDownload size={24} className="mb-2 group-hover:scale-110 transition-transform"/><span className="font-bold text-sm uppercase tracking-widest">Xuất Kết Quả (.TXT)</span></button>
-                     <button onClick={resetDraw} className="flex-1 bg-rose-600/20 hover:bg-rose-600/40 border border-rose-500/30 text-rose-400 rounded-xl p-4 flex flex-col items-center justify-center transition-all group"><IconRotateCcw size={24} className="mb-2 group-hover:-rotate-180 transition-transform duration-500"/><span className="font-bold text-sm uppercase tracking-widest">Làm lại từ đầu</span></button>
+            <div className="fixed inset-0 bg-[#020617]/90 backdrop-blur-sm flex items-center justify-center z-[110] p-3 md:p-4 font-sans">
+              <div className="bg-slate-900 border border-white/10 rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col max-h-[95vh] md:max-h-[90vh]">
+                <div className="p-4 md:p-5 border-b border-white/10 flex justify-between items-center bg-slate-800/80"><h2 className="text-lg md:text-xl font-black tracking-widest uppercase flex items-center text-white"><IconSettings className="mr-2 md:mr-3 text-amber-400" size={18} /> Cài đặt</h2><button onClick={() => setShowSettings(false)} className="text-slate-400 hover:text-white transition-colors bg-white/5 p-1.5 md:p-2 rounded-lg"><IconX size={18} /></button></div>
+                <div className="p-4 md:p-6 overflow-y-auto space-y-6 md:space-y-8 custom-scrollbar">
+                  <div className="flex space-x-3 md:space-x-4">
+                     <button onClick={handleExportData} className="flex-1 bg-emerald-600/20 hover:bg-emerald-600/40 border border-emerald-500/30 text-emerald-400 rounded-xl p-3 md:p-4 flex flex-col items-center justify-center transition-all group"><IconDownload size={20} className="mb-1 md:mb-2 group-hover:scale-110 transition-transform"/><span className="font-bold text-[10px] md:text-sm uppercase tracking-widest">Xuất File (.TXT)</span></button>
+                     <button onClick={resetDraw} className="flex-1 bg-rose-600/20 hover:bg-rose-600/40 border border-rose-500/30 text-rose-400 rounded-xl p-3 md:p-4 flex flex-col items-center justify-center transition-all group"><IconRotateCcw size={20} className="mb-1 md:mb-2 group-hover:-rotate-180 transition-transform duration-500"/><span className="font-bold text-[10px] md:text-sm uppercase tracking-widest">Làm lại từ đầu</span></button>
                   </div>
-                  <div className="bg-slate-800 border border-white/10 rounded-xl p-4 flex items-center justify-between">
-                     <div><h4 className="text-white font-bold text-sm flex items-center"><IconKeyRound size={14} className="mr-2 text-amber-400"/> Đổi mật khẩu Admin</h4><p className="text-xs text-slate-500 mt-1">Pass hiện tại để vào phòng Livestream</p></div>
-                     <div className="flex space-x-2"><input type="text" value={newPasscode} onChange={(e) => setNewPasscode(e.target.value)} className="bg-slate-950 border border-white/10 rounded-lg px-3 py-1.5 text-sm text-white w-32 focus:border-amber-400 focus:outline-none" /><button onClick={() => savePasscodeToCloud(newPasscode)} className="bg-slate-700 hover:bg-amber-600 text-white px-3 py-1.5 rounded-lg text-sm font-bold transition">Lưu</button></div>
+                  <div className="bg-slate-800 border border-white/10 rounded-xl p-3 md:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                     <div><h4 className="text-white font-bold text-sm flex items-center"><IconKeyRound size={14} className="mr-2 text-amber-400"/> Đổi mật khẩu</h4><p className="text-[10px] md:text-xs text-slate-500 mt-1">Pass hiện tại để vào phòng Admin</p></div>
+                     <div className="flex space-x-2"><input type="text" value={newPasscode} onChange={(e) => setNewPasscode(e.target.value)} className="bg-slate-950 border border-white/10 rounded-lg px-3 py-1.5 text-sm text-white w-full sm:w-32 focus:border-amber-400 focus:outline-none" /><button onClick={() => savePasscodeToCloud(newPasscode)} className="bg-slate-700 hover:bg-amber-600 text-white px-3 py-1.5 rounded-lg text-sm font-bold transition">Lưu</button></div>
                   </div>
-                  <div className="grid grid-cols-2 gap-6"><div><label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Số lượng / Đội</label><select value={config.maxPlayersPerTeam} onChange={async (e) => { const v = parseInt(e.target.value); setConfig({...config, maxPlayersPerTeam: v}); await syncToCloud({ config: {...config, maxPlayersPerTeam: v} }); }} className="w-full bg-slate-800 border border-white/10 rounded-xl px-4 py-3 text-white font-bold transition-colors">{[5,6,7,8,9,10,11].map(n => <option key={n} value={n}>{n} Players</option>)}</select></div></div>
+                  <div className="grid grid-cols-2 gap-4 md:gap-6"><div><label className="block text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Số lượng / Đội</label><select value={config.maxPlayersPerTeam} onChange={async (e) => { const v = parseInt(e.target.value); setConfig({...config, maxPlayersPerTeam: v}); await syncToCloud({ config: {...config, maxPlayersPerTeam: v} }); }} className="w-full bg-slate-800 border border-white/10 rounded-xl px-3 md:px-4 py-2.5 md:py-3 text-sm md:text-base text-white font-bold transition-colors">{[5,6,7,8,9,10,11,15,20].map(n => <option key={n} value={n}>{n} Người</option>)}</select></div></div>
                   <div>
-                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Tên các đội bóng</label>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <label className="block text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 md:mb-3">Tên đội bóng</label>
+                    <div className="grid grid-cols-2 gap-3 md:gap-4">
                       {config.teamNames.map((name, i) => (
-                        <div key={i} className="relative"><div className={`absolute top-0 left-0 w-1 h-full rounded-l-xl bg-gradient-to-b ${INITIAL_TEAMS[i].colorFrom} ${INITIAL_TEAMS[i].colorTo}`}></div><input type="text" value={name} onChange={(e) => handleTeamNameChange(i, e.target.value)} placeholder={`Đội ${i+1}`} className="w-full bg-slate-800 border border-white/10 rounded-xl pl-5 pr-3 py-2.5 text-sm font-bold text-white transition-colors focus:border-amber-400 focus:outline-none" /></div>
+                        <div key={i} className="relative"><div className={`absolute top-0 left-0 w-1 h-full rounded-l-xl bg-gradient-to-b ${INITIAL_TEAMS[i].colorFrom} ${INITIAL_TEAMS[i].colorTo}`}></div><input type="text" value={name} onChange={(e) => handleTeamNameChange(i, e.target.value)} placeholder={`Đội ${i+1}`} className="w-full bg-slate-800 border border-white/10 rounded-xl pl-4 md:pl-5 pr-2 md:pr-3 py-2 md:py-2.5 text-xs md:text-sm font-bold text-white transition-colors focus:border-amber-400 focus:outline-none" /></div>
                       ))}
                     </div>
                   </div>
-                  <div className="border-t border-white/10 pt-8"><h3 className="text-lg font-black text-amber-400 uppercase tracking-widest mb-2 flex items-center"><IconUpload className="mr-2" size={18}/> Nạp dữ liệu từ Excel</h3><p className="text-xs text-rose-400 mb-3 font-bold">* Lưu ý: Việc nạp dữ liệu mới sẽ GHI ĐÈ toàn bộ danh sách chờ hiện tại.</p><textarea value={csvInput} onChange={(e) => setCsvInput(e.target.value)} placeholder="Paste 2 cột Excel (Tên, Vị trí) vào đây..." className="w-full h-40 bg-slate-950 border border-white/10 rounded-xl p-4 text-sm font-mono text-slate-300 custom-scrollbar focus:border-amber-400 focus:outline-none" /><button onClick={handleImportExcel} className="mt-4 w-full bg-gradient-to-r from-slate-700 to-slate-600 hover:from-amber-500 hover:to-amber-600 text-white font-black uppercase tracking-widest py-3.5 rounded-xl transition-all shadow-lg">Cập nhật Database</button></div>
+                  <div className="border-t border-white/10 pt-6 md:pt-8"><h3 className="text-base md:text-lg font-black text-amber-400 uppercase tracking-widest mb-1 md:mb-2 flex items-center"><IconUpload className="mr-2" size={16}/> Nạp dữ liệu Excel</h3><p className="text-[10px] md:text-xs text-rose-400 mb-3 font-bold">* GHI ĐÈ toàn bộ danh sách chờ hiện tại.</p><textarea value={csvInput} onChange={(e) => setCsvInput(e.target.value)} placeholder="Copy 2 cột Excel (Tên, Vị trí) dán vào đây..." className="w-full h-32 md:h-40 bg-slate-950 border border-white/10 rounded-xl p-3 md:p-4 text-xs md:text-sm font-mono text-slate-300 custom-scrollbar focus:border-amber-400 focus:outline-none" /><button onClick={handleImportExcel} className="mt-3 md:mt-4 w-full bg-gradient-to-r from-slate-700 to-slate-600 hover:from-amber-500 hover:to-amber-600 text-white font-black uppercase tracking-widest py-3 md:py-3.5 rounded-xl transition-all shadow-lg text-sm md:text-base">Cập nhật Database</button></div>
                 </div>
               </div>
             </div>
