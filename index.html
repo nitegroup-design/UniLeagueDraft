@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Hệ Thống Bốc Thăm UNI LEAGUE (Pro)</title>
+  <title>UNI LEAGUE - Lịch Thi Đấu & Kết Quả</title>
 
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -13,112 +13,39 @@
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
+  <!-- Thêm thư viện html2canvas để xuất file ảnh -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore-compat.js"></script>
 
-  <!-- HTML2Canvas -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-
   <style>
     /* Animations & Scrollbar */
-    @keyframes fadeInRight { from { opacity: 0; transform: translateX(-15px); } to { opacity: 1; transform: translateX(0); } }
-    .animate-fade-in-right { animation: fadeInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
     @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
     .animate-fade-in-up { animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
     
-    /* FIFA Pack Open Animations */
-    @keyframes fifaFlash {
-        0% { opacity: 0; transform: scale(0.2) translateY(100px); filter: brightness(0); }
-        40% { opacity: 1; transform: scale(1.15) translateY(-20px); filter: brightness(2.5) drop-shadow(0 0 80px #fbbf24); }
-        65% { transform: scale(0.95) translateY(10px); filter: brightness(1.2) drop-shadow(0 0 20px #fbbf24); }
-        100% { opacity: 1; transform: scale(1) translateY(0); filter: brightness(1) drop-shadow(0 20px 30px rgba(0,0,0,0.8)); }
-    }
-    @keyframes fifaRays {
-        0% { transform: translate(-50%, -50%) rotate(0deg); }
-        100% { transform: translate(-50%, -50%) rotate(360deg); }
-    }
-    .card-reveal-fifa { opacity: 0; animation: fifaFlash 1.5s ease-out forwards; }
-
-    /* Logo Animations */
-    @keyframes logoSpinReveal {
-        0% { transform: scale(0) rotate(-540deg); opacity: 0; filter: brightness(2); }
-        70% { transform: scale(1.2) rotate(10deg); filter: brightness(1.5); }
-        100% { transform: scale(1) rotate(0deg); opacity: 1; filter: brightness(1); }
-    }
-    .animate-logo-reveal { animation: logoSpinReveal 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
-    
-    @keyframes smoothCardLogoReveal {
-        0% { transform: translate(-50%, -40%) scale(0.2) rotate(-15deg); opacity: 0; filter: blur(10px) brightness(2); }
-        60% { transform: translate(-50%, -65%) scale(1.15) rotate(5deg); opacity: 1; filter: blur(0px) brightness(1.2) drop-shadow(0 0 15px rgba(255,255,255,0.4)); }
-        100% { transform: translate(-50%, -60%) scale(1) rotate(0deg); opacity: 1; filter: blur(0px) brightness(1); }
-    }
-
-    @keyframes fastSpin {
-        0% { transform: rotate(0deg) scale(0.8); opacity: 0.5; filter: blur(2px); }
-        100% { transform: rotate(360deg) scale(0.8); opacity: 0.5; filter: blur(2px); }
-    }
-    .animate-fast-spin { animation: fastSpin 0.15s linear infinite; }
-
-    /* Intro Animations */
-    @keyframes swirlIn {
-        0% { transform: translate(var(--tx), var(--ty)) rotate(-720deg) scale(0); opacity: 0; }
-        30% { transform: translate(0, 0) rotate(0deg) scale(1.2); opacity: 1; filter: drop-shadow(0 0 30px rgba(245,158,11,0.8)); }
-        60% { transform: translate(0, 0) rotate(0deg) scale(1); opacity: 1; filter: drop-shadow(0 0 10px rgba(245,158,11,0.5)); }
-        100% { transform: translate(var(--tx2), var(--ty2)) rotate(180deg) scale(3); opacity: 0; filter: blur(20px); }
-    }
-    @keyframes textSuperReveal {
-        0% { transform: scale(0); opacity: 0; filter: blur(30px); }
-        45% { transform: scale(0); opacity: 0; filter: blur(30px); }
-        60% { transform: scale(1.3); opacity: 1; filter: blur(0px) drop-shadow(0 0 50px #fbbf24); }
-        90% { transform: scale(1); opacity: 1; filter: drop-shadow(0 0 20px #fbbf24); }
-        100% { transform: scale(1.1); opacity: 0; filter: blur(20px); }
-    }
-    @keyframes flashGlow {
-        0% { opacity: 0; transform: scale(0.5); }
-        45% { opacity: 0; transform: scale(0.5); }
-        55% { opacity: 1; transform: scale(3); }
-        100% { opacity: 0; transform: scale(5); }
-    }
-    @keyframes fadeOutIntro {
-        0% { opacity: 1; pointer-events: all; }
-        85% { opacity: 1; pointer-events: all; }
-        100% { opacity: 0; pointer-events: none; visibility: hidden; display: none; }
-    }
-
-    /* Sparkles & Aurora Orbs */
-    @keyframes auroraFloat {
-        0% { transform: translate(0, 0) scale(1); }
-        33% { transform: translate(5vw, -5vh) scale(1.1); }
-        66% { transform: translate(-5vw, 5vh) scale(0.9); }
-        100% { transform: translate(0, 0) scale(1); }
-    }
-    .aurora-1 { animation: auroraFloat 15s ease-in-out infinite alternate; }
-    .aurora-2 { animation: auroraFloat 18s ease-in-out infinite alternate-reverse; animation-delay: -5s; }
-    .aurora-3 { animation: auroraFloat 20s ease-in-out infinite alternate; animation-delay: -10s; }
-
-    @keyframes sparkleTwinkle {
-        0%, 100% { opacity: 0; transform: scale(0.5); }
-        50% { opacity: 1; transform: scale(1.2); filter: drop-shadow(0 0 5px white); }
-    }
-    .sparkle-star { animation: sparkleTwinkle 3s infinite ease-in-out; }
-
-    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
     .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 10px; }
     
     body { overscroll-behavior-y: none; }
+    
+    /* Input Number ẩn mũi tên */
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    input[type=number] { -moz-appearance: textfield; }
   </style>
 </head>
-<body class="bg-[#0a0f1c] text-slate-200 font-sans selection:bg-amber-500/30 overflow-hidden">
+<body class="bg-[#0a0f1c] text-slate-200 font-sans selection:bg-amber-500/30 overflow-hidden flex flex-col h-screen">
   
   <div id="error-screen" style="display: none; color: #f87171; padding: 20px; text-align: center; margin-top: 50px;">
      <h2>Hệ thống gặp lỗi cú pháp do Copy/Paste!</h2>
      <p id="error-msg" class="font-mono text-sm text-yellow-400 mt-4"></p>
   </div>
 
-  <div id="root"></div>
+  <div id="root" class="h-full flex flex-col"></div>
 
   <script>
      window.onerror = function(msg) {
@@ -160,24 +87,7 @@
     const getMainDocRef = () => db.collection('artifacts').doc(appId).collection('public').doc('data').collection('unidraft').doc('main');
     const getSecurityDocRef = () => db.collection('artifacts').doc(appId).collection('public').doc('data').collection('unidraft').doc('security');
 
-    // --- 2. MOCK DATA ---
-    const INITIAL_TEAMS = [
-      { id: 1, name: 'Kỳ Tài', logo: 'https://res.cloudinary.com/dyeijdp7q/image/upload/v1775202043/KyTai_hjw0fd.png', colorFrom: 'from-red-600', colorTo: 'to-red-900', shadow: 'shadow-red-500/20', textGlow: 'drop-shadow-[0_0_8px_rgba(220,38,38,0.8)]', players: [] },
-      { id: 2, name: 'Tinh Hoa', logo: 'https://res.cloudinary.com/dyeijdp7q/image/upload/v1775202043/TinhHoa_llv7y9.png', colorFrom: 'from-blue-600', colorTo: 'to-blue-900', shadow: 'shadow-blue-500/20', textGlow: 'drop-shadow-[0_0_8px_rgba(37,99,235,0.8)]', players: [] },
-      { id: 3, name: 'Tiên Phong', logo: 'https://res.cloudinary.com/dyeijdp7q/image/upload/v1775202043/TienPhong_ib6vk8.png', colorFrom: 'from-emerald-500', colorTo: 'to-emerald-800', shadow: 'shadow-emerald-500/20', textGlow: 'drop-shadow-[0_0_8px_rgba(16,185,129,0.8)]', players: [] },
-      { id: 4, name: 'Khai Phá', logo: 'https://res.cloudinary.com/dyeijdp7q/image/upload/v1775202043/KhaiPha_a8idmr.png', colorFrom: 'from-amber-500', colorTo: 'to-amber-800', shadow: 'shadow-amber-500/20', textGlow: 'drop-shadow-[0_0_8px_rgba(245,158,11,0.8)]', players: [] },
-      { id: 5, name: 'Bức Phá', logo: 'https://res.cloudinary.com/dyeijdp7q/image/upload/v1775202043/BucPha_lb9xrg.png', colorFrom: 'from-purple-600', colorTo: 'to-purple-900', shadow: 'shadow-purple-500/20', textGlow: 'drop-shadow-[0_0_8px_rgba(147,51,234,0.8)]', players: [] },
-      { id: 6, name: 'Thành Công', logo: 'https://res.cloudinary.com/dyeijdp7q/image/upload/v1775202043/ThanhCong_knkdse.png', colorFrom: 'from-pink-600', colorTo: 'to-pink-900', shadow: 'shadow-pink-500/20', textGlow: 'drop-shadow-[0_0_8px_rgba(219,39,119,0.8)]', players: [] },
-    ];
-    const POSITIONS = ['Thủ môn', 'Hậu vệ', 'Tiền vệ', 'Tiền đạo', 'Khác'];
-    const DEFAULT_CONFIG = { maxPlayersPerTeam: 7, teamNames: ['Kỳ Tài', 'Tinh Hoa', 'Tiên Phong', 'Khai Phá', 'Bức Phá', 'Thành Công'] };
-    const DEFAULT_PASSCODE = "unidraft2024";
-
-    // --- 3. ICONS ---
-    const IconShield = ({ className, size=14 }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>;
-    const IconGoal = ({ className, size=14 }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>;
-    const IconFootprints = ({ className, size=14 }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M4 16v-2.38C4 11.5 5.97 9.5 8.38 9.5h7.24C18.03 9.5 20 11.5 20 13.62V16"/><path d="M12 22v-6"/><path d="M8 22v-6"/><path d="M16 22v-6"/><path d="M8 2a3 3 0 0 0-3 3"/><path d="M16 2a3 3 0 0 1 3 3"/></svg>;
-    const IconUsers = ({ className, size=14 }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>;
+    // --- 2. ICONS ---
     const IconTrophy = ({ className, size=24, strokeWidth=2 }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>;
     const IconLock = ({ className, size=14 }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>;
     const IconMonitorPlay = ({ className, size=48 }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="20" height="14" x="2" y="3" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/><path d="m10 8 6 4-6 4Z"/></svg>;
@@ -186,87 +96,18 @@
     const IconCloudOff = ({ className, size=16 }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m2 2 20 20"/><path d="M5.782 5.782A7 7 0 0 0 9 19h8.5a4.5 4.5 0 0 0 1.307-.193"/><path d="M21.532 16.5A4.5 4.5 0 0 0 17.5 10h-1.79A7.008 7.008 0 0 0 10 5.27"/></svg>;
     const IconRotateCcw = ({ className, size=14 }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>;
     const IconCheckCircle = ({ className, size=14 }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>;
-    const IconSettings = ({ className, size=18 }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>;
-    const IconDices = ({ className, size=20 }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="12" height="12" x="2" y="10" rx="2" ry="2"/><path d="m17.92 14 3.5-3.5a2.24 2.24 0 0 0 0-3l-5-4.92a2.24 2.24 0 0 0-3 0L10 6"/><path d="M6 18h.01"/><path d="M10 14h.01"/><path d="M15 6h.01"/><path d="M18 9h.01"/></svg>;
-    const IconHexagon = ({ className, size=16, opacity }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} style={{opacity}}><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>;
-    const IconChevronRight = ({ className, size=32 }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m9 18 6-6-6-6"/></svg>;
-    const IconX = ({ className, size=20 }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>;
-    const IconUpload = ({ className, size=18 }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>;
-    const IconDownload = ({ className, size=24 }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>;
-    const IconCrown = ({ className, size=16 }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"/></svg>;
-    const IconEdit = ({ className, size=14 }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>;
-    const IconZap = ({ className, size=16 }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>;
-    const IconImage = ({ className, size=20 }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>;
     const IconSwords = ({ className, size=24 }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M14.5 17.5L3 6V3h3l11.5 11.5"/><path d="M13 19l6-6"/><path d="M16 16l4 4"/><path d="M19 21l2-2"/><path d="M14.5 6.5L18 3h3v3l-3.5 3.5"/><path d="M10.5 14.5L5 20l-2-2 5.5-5.5"/></svg>;
+    const IconCalendar = ({ className, size=24 }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></svg>;
+    const IconArrowUp = ({ className, size=16 }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m18 15-6-6-6 6"/></svg>;
+    const IconArrowDown = ({ className, size=16 }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m6 9 6 6 6-6"/></svg>;
+    const IconWand = ({ className, size=16 }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M15 4V2"/><path d="M15 16v-2"/><path d="M8 9h2"/><path d="M20 9h2"/><path d="M17.8 11.8 19 13"/><path d="M15 9h0"/><path d="M17.8 6.2 19 5"/><path d="m3 21 9-9"/><path d="M12.2 6.2 11 5"/></svg>;
+    const IconDownload = ({ className, size=16 }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>;
+    const IconCamera = ({ className, size=16 }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>;
 
-    const getPositionIcon = (pos) => {
-      switch(pos) {
-        case 'Thủ môn': return <IconShield className="text-amber-400" size={14} />;
-        case 'Hậu vệ': return <IconShield className="text-blue-400" size={14} />;
-        case 'Tiền vệ': return <IconFootprints className="text-emerald-400" size={14} />;
-        case 'Tiền đạo': return <IconGoal className="text-rose-400" size={14} />;
-        default: return <IconUsers className="text-slate-400" size={14} />;
-      }
-    };
-    
-    const getPositionColor = (pos) => {
-      switch(pos) {
-        case 'Thủ môn': return 'bg-amber-400/10 text-amber-400 border-amber-400/20';
-        case 'Hậu vệ': return 'bg-blue-400/10 text-blue-400 border-blue-400/20';
-        case 'Tiền vệ': return 'bg-emerald-400/10 text-emerald-400 border-emerald-400/20';
-        case 'Tiền đạo': return 'bg-rose-400/10 text-rose-400 border-rose-400/20';
-        default: return 'bg-slate-400/10 text-slate-400 border-slate-400/20';
-      }
-    };
+    const { useState, useEffect } = React;
 
-    const { useState, useEffect, useRef } = React;
-
-    // --- INTRO SCREEN ---
-    const IntroScreen = ({ onComplete }) => {
-        useEffect(() => {
-            const timer = setTimeout(() => {
-                onComplete();
-            }, 3800); 
-            return () => clearTimeout(timer);
-        }, [onComplete]);
-
-        const logos = [
-           { src: INITIAL_TEAMS[0].logo, tx: '-100vw', ty: '-100vh', tx2: '-300px', ty2: '-300px', delay: '0s' },
-           { src: INITIAL_TEAMS[1].logo, tx: '0', ty: '-100vh', tx2: '0', ty2: '-400px', delay: '0.1s' },
-           { src: INITIAL_TEAMS[2].logo, tx: '100vw', ty: '-100vh', tx2: '300px', ty2: '-300px', delay: '0.2s' },
-           { src: INITIAL_TEAMS[3].logo, tx: '100vw', ty: '100vh', tx2: '300px', ty2: '300px', delay: '0.1s' },
-           { src: INITIAL_TEAMS[4].logo, tx: '0', ty: '100vh', tx2: '0', ty2: '400px', delay: '0s' },
-           { src: INITIAL_TEAMS[5].logo, tx: '-100vw', ty: '100vh', tx2: '-300px', ty2: '300px', delay: '0.2s' },
-        ];
-
-        return (
-           <div className="fixed inset-0 z-[9999] bg-[#020617] flex items-center justify-center overflow-hidden" style={{ animation: 'fadeOutIntro 4s forwards' }}>
-               <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20"></div>
-               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150vw] h-[150vw] bg-[conic-gradient(from_0deg,transparent_0deg,#fbbf2411_10deg,transparent_20deg,transparent_40deg,#fbbf2411_50deg,transparent_60deg,transparent_80deg,#fbbf2411_90deg,transparent_100deg)] mix-blend-screen" style={{animation: 'fifaRays 10s linear infinite'}}></div>
-               
-               <div className="relative w-full h-full flex items-center justify-center">
-                   {logos.map((l, i) => (
-                       <img key={i} src={l.src} className="absolute w-24 h-24 md:w-36 md:h-36 object-contain z-10" 
-                            style={{
-                                '--tx': l.tx, '--ty': l.ty, '--tx2': l.tx2, '--ty2': l.ty2,
-                                animation: `swirlIn 2.5s cubic-bezier(0.25, 1, 0.5, 1) ${l.delay} forwards`
-                            }} 
-                       />
-                   ))}
-                   
-                   <div className="absolute w-[150px] h-[150px] bg-amber-400 rounded-full blur-[80px]" style={{animation: 'flashGlow 4s forwards'}}></div>
-                   
-                   <h1 className="absolute text-5xl sm:text-7xl md:text-9xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-amber-200 tracking-[0.2em] uppercase z-20 text-center" style={{ animation: 'textSuperReveal 4s cubic-bezier(0.16, 1, 0.3, 1) forwards' }}>
-                       UNI LEAGUE
-                   </h1>
-               </div>
-           </div>
-        );
-    };
-
-    // --- 4. MAIN APP ---
+    // --- 3. MAIN APP ---
     function App() {
-      const [showIntro, setShowIntro] = useState(true);
       const [role, setRole] = useState(null);
       const [user, setUser] = useState(null);
       const [dbError, setDbError] = useState(false);
@@ -274,7 +115,7 @@
       const [showAuthModal, setShowAuthModal] = useState(false);
       const [passcodeInput, setPasscodeInput] = useState('');
       const [authError, setAuthError] = useState('');
-      const [currentPasscode, setCurrentPasscode] = useState(DEFAULT_PASSCODE);
+      const [currentPasscode, setCurrentPasscode] = useState("unidraft2024");
 
       useEffect(() => {
         const doAuth = async () => {
@@ -312,32 +153,30 @@
 
       if (!role) {
         return (
-          <>
-          {showIntro && <IntroScreen onComplete={() => setShowIntro(false)} />}
-          <div className="fixed inset-0 bg-[#0a0f1c] flex items-center justify-center p-4 md:p-6 relative overflow-hidden font-sans">
+          <div className="flex-1 flex items-center justify-center p-4 md:p-6 relative overflow-hidden font-sans">
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-amber-500/10 blur-[80px] md:blur-[120px] rounded-full pointer-events-none z-0 transform-gpu"></div>
             
             <div className="bg-slate-900/80 backdrop-blur-md md:backdrop-blur-xl border border-white/10 p-6 md:p-10 rounded-3xl shadow-2xl z-10 max-w-2xl w-full text-center">
               <div className="flex justify-center mb-6">
                 <div className="w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-amber-300 to-amber-700 rounded-2xl flex items-center justify-center shadow-[0_0_30px_rgba(245,158,11,0.4)]">
-                  <IconTrophy className="text-slate-950" size={36} />
+                  <IconCalendar className="text-slate-950" size={36} />
                 </div>
               </div>
-              <h1 className="text-2xl md:text-4xl font-black text-white uppercase tracking-wider mb-2">Hệ Thống Draft</h1>
-              <p className="text-xs md:text-sm text-slate-400 mb-8">Vui lòng chọn vai trò để truy cập UNI LEAGUE</p>
+              <h1 className="text-2xl md:text-4xl font-black text-white uppercase tracking-wider mb-2">Lịch Thi Đấu & Kết Quả</h1>
+              <p className="text-xs md:text-sm text-slate-400 mb-8">Vui lòng chọn vai trò để truy cập bảng điều khiển UNI LEAGUE</p>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 relative">
                 <button onClick={() => setShowAuthModal(true)} className="group relative bg-slate-800 hover:bg-slate-700 border border-white/5 rounded-2xl p-6 md:p-8 flex flex-col items-center transition-all duration-300 hover:border-amber-500/50 hover:shadow-[0_0_30px_rgba(245,158,11,0.2)]">
                   <div className="absolute top-4 right-4 bg-slate-900 p-1.5 rounded-md border border-white/10 text-amber-500/50"><IconLock size={14} /></div>
                   <IconMonitorPlay size={40} className="text-amber-400 mb-3 group-hover:scale-110 transition-transform" />
-                  <h2 className="text-lg md:text-xl font-bold text-white mb-2">Màn hình Livestream</h2>
-                  <p className="text-xs text-slate-400 text-center">Phòng dành cho MC và Quản trị viên</p>
+                  <h2 className="text-lg md:text-xl font-bold text-white mb-2">Quản Trị Viên</h2>
+                  <p className="text-xs text-slate-400 text-center">Cập nhật tỉ số, Lịch đấu, Sơ đồ Knockout</p>
                 </button>
 
                 <button onClick={() => setRole('viewer')} className="group bg-slate-800 hover:bg-slate-700 border border-white/5 rounded-2xl p-6 md:p-8 flex flex-col items-center transition-all duration-300 hover:border-blue-500/50 hover:shadow-[0_0_30px_rgba(59,130,246,0.2)]">
                   <IconSmartphone size={40} className="text-blue-400 mb-3 group-hover:scale-110 transition-transform" />
                   <h2 className="text-lg md:text-xl font-bold text-white mb-2">Khán giả theo dõi</h2>
-                  <p className="text-xs text-slate-400 text-center">Xem kết quả bốc thăm trên thiết bị cá nhân</p>
+                  <p className="text-xs text-slate-400 text-center">Xem kết quả Live Realtime</p>
                 </button>
               </div>
               {dbError && <p className="text-red-400 mt-6 text-xs font-bold bg-red-900/20 p-3 rounded-lg border border-red-500/20"><IconCloudOff size={14} className="inline mr-2"/> Database chưa kết nối. Vui lòng kiểm tra lại mạng!</p>}
@@ -360,47 +199,29 @@
               </div>
             )}
           </div>
-          </>
         );
       }
 
-      return (
-        <>
-           {showIntro && <IntroScreen onComplete={() => setShowIntro(false)} />}
-           <DraftApplication role={role} user={user} dbError={dbError} onBack={() => setRole(null)} currentPasscode={currentPasscode} />
-        </>
-      );
+      return <ScheduleApplication role={role} user={user} dbError={dbError} onBack={() => setRole(null)} />;
     }
 
-    // --- 5. COMPONENT HỆ THỐNG DRAFT CHÍNH ---
-    function DraftApplication({ role, user, dbError, onBack, currentPasscode }) {
-      const [activeTab, setActiveTab] = useState('draft'); // 'draft' hoặc 'groups'
-
-      const [teams, setTeams] = useState(INITIAL_TEAMS);
-      const [availablePlayers, setAvailablePlayers] = useState([]);
-      const [config, setConfig] = useState(DEFAULT_CONFIG);
-      
-      const [lottery, setLottery] = useState({ active: false, phase: '', player: null, team: null });
-      const [captainReveal, setCaptainReveal] = useState({ active: false, type: 'captain', assignments: [] });
-      
+    // --- 4. COMPONENT LỊCH THI ĐẤU CHÍNH ---
+    function ScheduleApplication({ role, user, dbError, onBack }) {
+      const [teams, setTeams] = useState([]);
       const [groups, setGroups] = useState({ A: [], B: [] });
-      const [groupDraw, setGroupDraw] = useState({ active: false, phase: '', team: null, group: null });
+      const [matches, setMatches] = useState([]);
+      // State lưu tên cho các ngày thi đấu (Mỗi phần tử đại diện cho 1 nhóm 2 trận)
+      const [days, setDays] = useState(['', '', '', '', '']); 
+      const [bracket, setBracket] = useState({
+          semi1Team1: null, semi1Team2: null,
+          semi2Team1: null, semi2Team2: null,
+          thirdTeam1: null, thirdTeam2: null,
+          finalTeam1: null, finalTeam2: null
+      });
 
-      const [editingPlayer, setEditingPlayer] = useState(null);
-      const [editFormData, setEditFormData] = useState({ name: '', position: '', isCaptain: false, targetTeamId: 'pool' });
-
-      const [showSettings, setShowSettings] = useState(false);
-      const [csvInput, setCsvInput] = useState('');
-      const [newPasscode, setNewPasscode] = useState(currentPasscode);
       const [syncStatus, setSyncStatus] = useState('saved');
-      const [isExportingImage, setIsExportingImage] = useState(false);
-      
-      const lastProcessedCmdId = useRef(null);
-      const lastCaptainCmdId = useRef(null);
-      const lastGroupDrawCmdId = useRef(null);
-      const isFirstLoad = useRef(true);
-
       const [isSynced, setIsSynced] = useState(true);
+      const [isExportingImage, setIsExportingImage] = useState(false);
 
       useEffect(() => {
         if (!user || dbError) return;
@@ -411,45 +232,14 @@
           
           if (docSnap.exists) {
             const data = docSnap.data();
-            
-            const currentTeams = data.teams || INITIAL_TEAMS;
-            const currentAvailable = data.availablePlayers || [];
-            const currentGroups = data.groups || { A: [], B: [] };
-
-            if (isFirstLoad.current) {
-               isFirstLoad.current = false;
-               if (data.lotteryCmd) lastProcessedCmdId.current = data.lotteryCmd.id;
-               if (data.captainCmd) lastCaptainCmdId.current = data.captainCmd.id;
-               if (data.groupDrawCmd) lastGroupDrawCmdId.current = data.groupDrawCmd.id;
-            }
-
-            setTeams(currentTeams);
-            setAvailablePlayers(currentAvailable);
-            setGroups(currentGroups);
-            if (data.config) setConfig(data.config);
-            
-            if (data.lotteryCmd && data.lotteryCmd.id !== lastProcessedCmdId.current) {
-              lastProcessedCmdId.current = data.lotteryCmd.id;
-              playLotteryAnimation(data.lotteryCmd.player, data.lotteryCmd.team, currentTeams, currentAvailable);
-            }
-            
-            if (data.captainCmd && data.captainCmd.id !== lastCaptainCmdId.current) {
-              lastCaptainCmdId.current = data.captainCmd.id;
-              playCaptainRevealAnimation(data.captainCmd.assignments, data.captainCmd.type || 'captain', currentTeams, currentAvailable);
-            }
-
-            if (data.groupDrawCmd && data.groupDrawCmd.id !== lastGroupDrawCmdId.current) {
-              lastGroupDrawCmdId.current = data.groupDrawCmd.id;
-              playGroupDrawAnimation(data.groupDrawCmd.team, data.groupDrawCmd.targetGroup, currentTeams);
-            }
-
-            if (!data.lotteryCmd) setLottery(prev => prev.active && prev.phase === 'result' ? { active: false, phase: '', player: null, team: null } : prev);
-            if (!data.captainCmd) setCaptainReveal(prev => prev.active ? { active: false, type: 'captain', assignments: [] } : prev);
-            if (!data.groupDrawCmd) setGroupDraw(prev => prev.active && prev.phase === 'result' ? { active: false, phase: '', team: null, group: null } : prev);
-
-          } else if (role === 'admin') {
-             docRef.set({ teams: INITIAL_TEAMS, availablePlayers: [], config: DEFAULT_CONFIG, groups: { A: [], B: [] }, lotteryCmd: null, captainCmd: null, groupDrawCmd: null }, { merge: true });
-             isFirstLoad.current = false;
+            setTeams(data.teams || []);
+            setGroups(data.groups || { A: [], B: [] });
+            setMatches(data.matches || []);
+            setDays(data.days || ['', '', '', '', '']); // Nhận dữ liệu ngày
+            setBracket(data.bracket || {
+                semi1Team1: null, semi1Team2: null, semi2Team1: null, semi2Team2: null,
+                thirdTeam1: null, thirdTeam2: null, finalTeam1: null, finalTeam2: null
+            });
           }
         }, (err) => console.error("Snapshot error:", err));
 
@@ -465,1040 +255,769 @@
         }
       };
 
-      const savePasscodeToCloud = async (newPass) => {
-        if (user && !dbError && newPass.trim() !== '') {
-          const docRef = getSecurityDocRef();
-          await docRef.set({ passcode: newPass }, { merge: true });
-          alert("Đã lưu Passcode mới thành công!");
-        }
-      };
-
-      // --- LOGIC BỐC BẢNG ĐẤU XEN KẼ ---
-      const triggerGroupDraw = async () => {
-          if (groupDraw.active) return;
-          const allAssignedIds = [...groups.A, ...groups.B];
-          const unassignedTeams = teams.filter(t => !allAssignedIds.includes(t.id));
-
-          if (unassignedTeams.length === 0) {
-              alert("Tất cả các đội đã được xếp bảng!");
+      const generateSchedule = async () => {
+          if(groups.A.length !== 3 || groups.B.length !== 3) {
+              alert("Draft chưa chia đủ 3 đội cho mỗi bảng (Tổng 6 đội) nên không thể tự động tạo lịch đấu chuẩn!");
               return;
           }
-
-          // Lấy ngẫu nhiên 1 đội chưa có bảng
-          const randomTeam = unassignedTeams[Math.floor(Math.random() * unassignedTeams.length)];
-          
-          // Logic Xen Kẽ: Nếu Bảng A đang có số lượng <= Bảng B, thì đích đến tiếp theo là Bảng A. Ngược lại là Bảng B.
-          const targetGroup = groups.A.length <= groups.B.length ? 'A' : 'B';
-          
-          const cmdId = Date.now().toString();
-          await syncToCloud({ groupDrawCmd: { id: cmdId, team: randomTeam, targetGroup: targetGroup } });
-      };
-
-      const playGroupDrawAnimation = async (actualTeam, actualGroup, currentTeams) => {
-          setGroupDraw({ active: true, phase: 'spin_team', team: null, group: actualGroup });
-          const allAssignedIds = [...groups.A, ...groups.B];
-          const unassignedTeams = currentTeams.filter(t => !allAssignedIds.includes(t.id));
-          const pool = unassignedTeams.length > 0 ? unassignedTeams : [actualTeam];
-
-          // CHỈ SPIN TEAM VÌ ĐÃ BIẾT TRƯỚC BẢNG RỒI
-          for(let i=0; i<30; i++) {
-              setGroupDraw(prev => ({...prev, team: pool[Math.floor(Math.random()*pool.length)]}));
-              await new Promise(r => setTimeout(r, 50 + (i*2))); // Tốc độ chậm dần
-          }
-          
-          // Result
-          setGroupDraw(prev => ({...prev, phase: 'result', team: actualTeam}));
-      };
-
-      const handleCloseGroupDraw = async () => {
-          if (role !== 'admin' || groupDraw.phase !== 'result') return;
-          
-          const actualTeam = groupDraw.team;
-          const actualGroup = groupDraw.group;
-          
-          const newGroups = { ...groups };
-          newGroups[actualGroup].push(actualTeam.id);
-          
-          setGroups(newGroups);
-          await syncToCloud({ groups: newGroups, groupDrawCmd: null });
-          
-          setGroupDraw({ active: false, phase: '', team: null, group: null });
-      };
-
-      const resetGroups = async () => {
-          if (!window.confirm("Bạn có chắc muốn làm mới toàn bộ bảng đấu?")) return;
-          const newGroups = { A: [], B: [] };
-          setGroups(newGroups);
-          if (role === 'admin') await syncToCloud({ groups: newGroups });
-      };
-      // -----------------------------
-
-      // --- LOGIC BỐC THÀNH VIÊN CŨ ---
-      const triggerCaptainDraw = async () => {
-          const captainsInPool = availablePlayers.filter(p => p.isCaptain);
-          if (captainsInPool.length === 0) {
-              alert("Không có đội trưởng nào trong danh sách chờ!");
-              return;
-          }
-          if (teams.some(t => t.players.length > 0)) {
-              if(!window.confirm("Đã có người trong các đội. Bạn vẫn muốn tung đội trưởng chứ?")) return;
+          if(matches.length > 0) {
+              if(!window.confirm("CẢNH BÁO: Tạo lịch đấu mới sẽ xóa sạch kết quả thi đấu hiện tại. Tiếp tục?")) return;
           }
 
-          const assignments = [];
-          let currentTeamsState = JSON.parse(JSON.stringify(teams));
-          let leftoverCaptains = [];
+          const newMatches = [];
+          newMatches.push({ id: `match_a1_${Date.now()}`, type: 'groupA', team1: groups.A[0], team2: groups.A[1], score1: '', score2: '' });
+          newMatches.push({ id: `match_a2_${Date.now()}`, type: 'groupA', team1: groups.A[0], team2: groups.A[2], score1: '', score2: '' });
+          newMatches.push({ id: `match_a3_${Date.now()}`, type: 'groupA', team1: groups.A[1], team2: groups.A[2], score1: '', score2: '' });
 
-          captainsInPool.forEach(cap => {
-              let assigned = false;
-              if (cap.preAssignedTeam) {
-                  const targetTeamName = cap.preAssignedTeam.toLowerCase().trim();
-                  const actualTeamIndex = currentTeamsState.findIndex(t => t.name.toLowerCase().trim() === targetTeamName);
-                  if (actualTeamIndex !== -1 && currentTeamsState[actualTeamIndex].players.length < config.maxPlayersPerTeam) {
-                      assignments.push({ player: cap, team: teams[actualTeamIndex] });
-                      currentTeamsState[actualTeamIndex].players.push(cap);
-                      assigned = true;
+          newMatches.push({ id: `match_b1_${Date.now()}`, type: 'groupB', team1: groups.B[0], team2: groups.B[1], score1: '', score2: '' });
+          newMatches.push({ id: `match_b2_${Date.now()}`, type: 'groupB', team1: groups.B[0], team2: groups.B[2], score1: '', score2: '' });
+          newMatches.push({ id: `match_b3_${Date.now()}`, type: 'groupB', team1: groups.B[1], team2: groups.B[2], score1: '', score2: '' });
+
+          newMatches.push({ id: `match_semi1_${Date.now()}`, type: 'semi1', team1: null, team2: null, score1: '', score2: '' });
+          newMatches.push({ id: `match_semi2_${Date.now()}`, type: 'semi2', team1: null, team2: null, score1: '', score2: '' });
+          newMatches.push({ id: `match_third_${Date.now()}`, type: 'third', team1: null, team2: null, score1: '', score2: '' });
+          newMatches.push({ id: `match_final_${Date.now()}`, type: 'final', team1: null, team2: null, score1: '', score2: '' });
+
+          const newBracket = {
+            semi1Team1: null, semi1Team2: null, semi2Team1: null, semi2Team2: null,
+            thirdTeam1: null, thirdTeam2: null, finalTeam1: null, finalTeam2: null
+          };
+
+          const newDays = ['', '', '', '', ''];
+
+          setMatches(newMatches);
+          setBracket(newBracket);
+          setDays(newDays);
+          await syncToCloud({ matches: newMatches, bracket: newBracket, days: newDays });
+      };
+
+      const handleUpdateScore = async (matchId, s1, s2) => {
+          let newMatches = matches.map(m => m.id === matchId ? { ...m, score1: s1, score2: s2 } : m);
+          let newBracket = { ...bracket };
+          let bracketChanged = false;
+
+          const updatedMatch = newMatches.find(m => m.id === matchId);
+          if (updatedMatch && (updatedMatch.type === 'semi1' || updatedMatch.type === 'semi2')) {
+              const s1Val = parseInt(s1);
+              const s2Val = parseInt(s2);
+
+              if (!isNaN(s1Val) && !isNaN(s2Val) && s1Val !== s2Val) {
+                  const winnerId = s1Val > s2Val ? updatedMatch.team1 : updatedMatch.team2;
+                  const loserId = s1Val > s2Val ? updatedMatch.team2 : updatedMatch.team1;
+
+                  if (updatedMatch.type === 'semi1') {
+                      newBracket.finalTeam1 = winnerId;
+                      newBracket.thirdTeam1 = loserId;
+                  } else {
+                      newBracket.finalTeam2 = winnerId;
+                      newBracket.thirdTeam2 = loserId;
                   }
-              }
-              if (!assigned) leftoverCaptains.push(cap);
-          });
-
-          leftoverCaptains.sort(() => 0.5 - Math.random());
-          for (let cap of leftoverCaptains) {
-              const validTeamsNow = currentTeamsState.filter(t => t.players.length < config.maxPlayersPerTeam);
-              if (validTeamsNow.length === 0) break;
-              
-              const minPlayersCount = Math.min(...validTeamsNow.map(t => t.players.length));
-              const eligibleTeams = validTeamsNow.filter(t => t.players.length === minPlayersCount);
-              
-              const chosenTeam = eligibleTeams[Math.floor(Math.random() * eligibleTeams.length)];
-              const teamIndex = currentTeamsState.findIndex(t => t.id === chosenTeam.id);
-              
-              assignments.push({ player: cap, team: teams[teamIndex] });
-              currentTeamsState[teamIndex].players.push(cap);
-          }
-
-          const cmdId = Date.now().toString();
-          await syncToCloud({ captainCmd: { id: cmdId, type: 'captain', assignments } });
-      };
-
-      const triggerFastDraw = async () => {
-          if (availablePlayers.length === 0 || lottery.active || captainReveal.active) return;
-          
-          const validTeams = teams.filter(t => t.players.length < config.maxPlayersPerTeam);
-          if (validTeams.length === 0) {
-              alert("Tất cả các đội bóng đã đủ người!");
-              return;
-          }
-
-          const numToDraw = Math.min(validTeams.length, availablePlayers.length, 6);
-          
-          let nonCaptains = availablePlayers.filter(p => !p.isCaptain);
-          let captains = availablePlayers.filter(p => p.isCaptain);
-          nonCaptains.sort(() => 0.5 - Math.random());
-          captains.sort(() => 0.5 - Math.random());
-          
-          let pool = [...nonCaptains, ...captains].slice(0, numToDraw);
-          pool.sort(() => 0.5 - Math.random()); 
-
-          const assignments = [];
-          let currentTeamsState = JSON.parse(JSON.stringify(teams)); 
-
-          for (let i = 0; i < pool.length; i++) {
-              const player = pool[i];
-              let teamFound = null;
-
-              if (player.preAssignedTeam) {
-                  const targetTeamName = player.preAssignedTeam.toLowerCase().trim();
-                  const actualTeamIndex = currentTeamsState.findIndex(t => t.name.toLowerCase().trim() === targetTeamName);
-                  if (actualTeamIndex !== -1 && currentTeamsState[actualTeamIndex].players.length < config.maxPlayersPerTeam) {
-                      teamFound = currentTeamsState[actualTeamIndex];
+                  bracketChanged = true;
+              } else if (s1 === '' || s2 === '') {
+                  if (updatedMatch.type === 'semi1') {
+                      newBracket.finalTeam1 = null;
+                      newBracket.thirdTeam1 = null;
+                  } else {
+                      newBracket.finalTeam2 = null;
+                      newBracket.thirdTeam2 = null;
                   }
+                  bracketChanged = true;
               }
 
-              if (!teamFound) {
-                  const validTeamsNow = currentTeamsState.filter(t => t.players.length < config.maxPlayersPerTeam);
-                  if (validTeamsNow.length === 0) break;
-
-                  const minPlayersCount = Math.min(...validTeamsNow.map(t => t.players.length));
-                  let eligibleTeams = validTeamsNow.filter(t => t.players.length === minPlayersCount);
-
-                  const positionCounts = eligibleTeams.map(t => t.players.filter(p => p.position === player.position).length);
-                  const minPosCount = Math.min(...positionCounts);
-                  eligibleTeams = eligibleTeams.filter(t => t.players.filter(p => p.position === player.position).length === minPosCount);
-
-                  teamFound = eligibleTeams[Math.floor(Math.random() * eligibleTeams.length)];
-              }
-              
-              if (teamFound) {
-                 assignments.push({ player, team: teams.find(t => t.id === teamFound.id) });
-                 const teamIndex = currentTeamsState.findIndex(t => t.id === teamFound.id);
-                 currentTeamsState[teamIndex].players.push(player);
+              if (bracketChanged) {
+                  newMatches = newMatches.map(m => {
+                      if (m.type === 'final') return { ...m, team1: newBracket.finalTeam1, team2: newBracket.finalTeam2 };
+                      if (m.type === 'third') return { ...m, team1: newBracket.thirdTeam1, team2: newBracket.thirdTeam2 };
+                      return m;
+                  });
+                  setBracket(newBracket);
               }
           }
 
-          const cmdId = Date.now().toString();
-          await syncToCloud({ captainCmd: { id: cmdId, type: 'fast', assignments } });
+          setMatches(newMatches);
+          const syncData = { matches: newMatches };
+          if (bracketChanged) syncData.bracket = newBracket;
+          await syncToCloud(syncData);
       };
 
-      const playCaptainRevealAnimation = async (assignments, type, currentTeams, currentAvailable) => {
-          setCaptainReveal({ active: true, type, assignments });
-      };
-
-      const handleCloseCaptainReveal = async () => {
+      // Thay đổi tiêu đề Ngày thi đấu
+      const handleChangeDayTime = async (dayIndex, newTime) => {
           if (role !== 'admin') return;
-          
-          let newTeams = [...teams];
-          let newAvailable = [...availablePlayers];
-
-          captainReveal.assignments.forEach(assign => {
-              newAvailable = newAvailable.filter(p => p.id !== assign.player.id);
-              newTeams = newTeams.map(t => t.id === assign.team.id ? { ...t, players: [...t.players, assign.player] } : t);
-          });
-
-          setTeams(newTeams);
-          setAvailablePlayers(newAvailable);
-          await syncToCloud({ teams: newTeams, availablePlayers: newAvailable, captainCmd: null });
-          setCaptainReveal({ active: false, type: 'captain', assignments: [] });
+          const newDays = [...days];
+          newDays[dayIndex] = newTime;
+          setDays(newDays);
+          await syncToCloud({ days: newDays });
       };
 
-      const triggerNextDraw = async () => {
-        if (availablePlayers.length === 0 || lottery.active || captainReveal.active) return;
-        
-        const nonCaptains = availablePlayers.filter(p => !p.isCaptain);
-        const poolToDraw = nonCaptains.length > 0 ? nonCaptains : availablePlayers;
-        const actualPlayer = poolToDraw[Math.floor(Math.random() * poolToDraw.length)];
-        
-        let actualTeam = null;
-
-        if (actualPlayer.preAssignedTeam) {
-            const targetTeamName = actualPlayer.preAssignedTeam.toLowerCase().trim();
-            const foundTeam = teams.find(t => t.name.toLowerCase().trim() === targetTeamName);
-            if (foundTeam && foundTeam.players.length < config.maxPlayersPerTeam) {
-                actualTeam = foundTeam; 
-            }
-        }
-
-        if (!actualTeam) {
-            const validTeams = teams.filter(t => t.players.length < config.maxPlayersPerTeam);
-            if (validTeams.length === 0) { alert("Tất cả các đội bóng đã đủ người!"); return; }
-
-            const minPlayersCount = Math.min(...validTeams.map(t => t.players.length));
-            let eligibleTeams = validTeams.filter(t => t.players.length === minPlayersCount);
-            
-            const positionCounts = eligibleTeams.map(t => t.players.filter(p => p.position === actualPlayer.position).length);
-            const minPosCount = Math.min(...positionCounts);
-            eligibleTeams = eligibleTeams.filter(t => t.players.filter(p => p.position === actualPlayer.position).length === minPosCount);
-
-            actualTeam = eligibleTeams[Math.floor(Math.random() * eligibleTeams.length)];
-        }
-        
-        const cmdId = Date.now().toString();
-        await syncToCloud({ lotteryCmd: { id: cmdId, player: actualPlayer, team: actualTeam } });
-      };
-
-      const playLotteryAnimation = async (actualPlayer, actualTeam, currentTeams, currentAvailable) => {
-        setLottery({ active: true, phase: 'spin_player', player: null, team: null });
-        const pool = currentAvailable.length > 0 ? currentAvailable : [actualPlayer];
-
-        for(let i=0; i<25; i++) {
-          setLottery(prev => ({...prev, player: pool[Math.floor(Math.random()*pool.length)]}));
-          await new Promise(r => setTimeout(r, 60 + (i*2)));
-        }
-        
-        setLottery(prev => ({...prev, phase: 'show_player', player: actualPlayer}));
-        await new Promise(r => setTimeout(r, 1500));
-
-        setLottery(prev => ({...prev, phase: 'spin_team'}));
-        for(let i=0; i<20; i++) {
-          setLottery(prev => ({...prev, team: currentTeams[Math.floor(Math.random()*currentTeams.length)]}));
-          await new Promise(r => setTimeout(r, 80 + (i*3)));
-        }
-
-        setLottery(prev => ({...prev, phase: 'result', team: actualTeam}));
-      };
-
-      const handleCloseLottery = async () => {
-        if (role !== 'admin' || lottery.phase !== 'result') return;
-        
-        const actualPlayer = lottery.player;
-        const actualTeam = lottery.team;
-        const newTeams = teams.map(t => t.id === actualTeam.id ? { ...t, players: [...t.players, actualPlayer] } : t);
-        const newAvailable = availablePlayers.filter(p => p.id !== actualPlayer.id);
-        
-        setTeams(newTeams);
-        setAvailablePlayers(newAvailable);
-        await syncToCloud({ teams: newTeams, availablePlayers: newAvailable, lotteryCmd: null });
-        
-        setLottery({ active: false, phase: '', player: null, team: null });
-      };
-
-      const resetDraw = async () => {
-        if (!window.confirm("CẢNH BÁO: Hành động này sẽ XÓA TOÀN BỘ KẾT QUẢ THÀNH VIÊN và làm lại từ đầu. Chắc chắn chứ?")) return;
-        const newTeams = INITIAL_TEAMS.map((t, idx) => ({ ...t, name: config.teamNames[idx], players: [] }));
-        setTeams(newTeams);
-        if (role === 'admin') await syncToCloud({ teams: newTeams, availablePlayers: [] });
-      };
-
-      const handleImportExcel = async () => {
-        if (!csvInput.trim()) return;
-        const lines = csvInput.split('\n');
-        const newPlayers = [];
-        
-        lines.forEach((line, index) => {
-          if (!line.trim()) return;
-          let separator = line.includes('\t') ? '\t' : ',';
-          const parts = line.split(separator).map(p => p.trim());
-          
-          if (parts.length >= 2) {
-             let namePart = "";
-             let posPart = "";
-             let isCaptain = false;
-             let preAssignedTeam = null;
-             
-             let startIndex = 0;
-             if (!isNaN(parts[0]) || parts[0].toLowerCase() === 'stt') {
-                if (parts[0].toLowerCase() === 'stt') return;
-                startIndex = 1;
-             } else {
-                if (parts[0].toLowerCase().includes('tên')) return;
-                startIndex = 0;
-             }
-
-             namePart = parts[startIndex];
-             posPart = parts[startIndex + 1] || 'Khác';
-
-             for (let i = startIndex + 2; i < parts.length; i++) {
-                 let val = parts[i] ? parts[i].trim().toLowerCase() : '';
-                 if (!val) continue;
-
-                 if (val === 'c' || val === 'x' || val.includes('đội trưởng') || val.includes('có')) {
-                     isCaptain = true;
-                 }
-
-                 let matchedTeam = config.teamNames.find(t => val.includes(t.toLowerCase()));
-                 if (matchedTeam) preAssignedTeam = matchedTeam;
-                 else if (val.includes('đội') && !val.includes('đội trưởng')) preAssignedTeam = parts[i];
-             }
-
-             let name = namePart;
-             let position = posPart;
-
-             if (name.includes('(C)') || name.includes('(c)')) {
-                 isCaptain = true;
-                 name = name.replace(/\(c\)/ig, '').trim();
-             }
-
-             if(position.toLowerCase().includes('thủ')) position = 'Thủ môn';
-             else if(position.toLowerCase().includes('hậu')) position = 'Hậu vệ';
-             else if(position.toLowerCase().includes('vệ') && !position.toLowerCase().includes('tiền')) position = 'Hậu vệ';
-             else if(position.toLowerCase().includes('tiền vệ')) position = 'Tiền vệ';
-             else if(position.toLowerCase().includes('đạo')) position = 'Tiền đạo';
-             else position = 'Khác';
-
-             if (name) newPlayers.push({ id: `p-${Date.now()}-${index}`, name, position, isCaptain, preAssignedTeam });
+      const handleMoveMatch = async (index, direction) => {
+          if (role !== 'admin') return;
+          const newMatches = [...matches];
+          if (direction === 'up' && index > 0) {
+              [newMatches[index - 1], newMatches[index]] = [newMatches[index], newMatches[index - 1]];
+          } else if (direction === 'down' && index < newMatches.length - 1) {
+              [newMatches[index + 1], newMatches[index]] = [newMatches[index], newMatches[index + 1]];
           }
-        });
+          setMatches(newMatches);
+          await syncToCloud({ matches: newMatches });
+      };
 
-        if (newPlayers.length > 0) {
-          let finalTeams = [...teams];
-          let finalAvailable = [...availablePlayers];
-          
-          const hasDraftedPlayers = finalTeams.some(t => t.players.length > 0);
-          
-          if (hasDraftedPlayers) {
-              const isKeepTeams = window.confirm("Hệ thống phát hiện đang có người trong các đội bóng.\n\n👉 Bấm [OK] nếu bạn muốn GIỮ NGUYÊN ĐỘI HÌNH hiện tại và chỉ NẠP BỔ SUNG những người còn thiếu vào danh sách chờ.\n\n👉 Bấm [CANCEL] để Xóa sạch làm lại từ đầu.");
-              
-              if (!isKeepTeams) {
-                  finalTeams = INITIAL_TEAMS.map((t, idx) => ({ ...t, name: config.teamNames[idx], players: [] }));
-                  finalAvailable = newPlayers;
-              } else {
-                  const allDraftedNames = finalTeams.flatMap(t => t.players.map(p => p.name.toLowerCase().trim()));
-                  const allAvailableNames = finalAvailable.map(p => p.name.toLowerCase().trim());
-                  const trulyNewPlayers = newPlayers.filter(p => !allDraftedNames.includes(p.name.toLowerCase().trim()) && !allAvailableNames.includes(p.name.toLowerCase().trim()));
-                  
-                  finalAvailable = [...finalAvailable, ...trulyNewPlayers];
-                  alert(`Đã tự động quét: Bỏ qua ${newPlayers.length - trulyNewPlayers.length} người cũ.\n\n✅ Nạp bổ sung thành công ${trulyNewPlayers.length} người mới vào danh sách chờ!`);
+      const handleChangeMatchTeam = async (matchId, isTeam1, newTeamId) => {
+          if (role !== 'admin') return;
+          const newMatches = matches.map(m => {
+              if (m.id === matchId) {
+                  return { ...m, [isTeam1 ? 'team1' : 'team2']: newTeamId === '' ? null : Number(newTeamId) };
               }
+              return m;
+          });
+          setMatches(newMatches);
+
+          const match = newMatches.find(m => m.id === matchId);
+          if (['semi1', 'semi2', 'third', 'final'].includes(match.type)) {
+              const newBracket = { ...bracket };
+              const key = `${match.type}Team${isTeam1 ? '1' : '2'}`;
+              newBracket[key] = newTeamId === '' ? null : Number(newTeamId);
+              setBracket(newBracket);
+              await syncToCloud({ matches: newMatches, bracket: newBracket });
           } else {
-              finalTeams = INITIAL_TEAMS.map((t, idx) => ({ ...t, name: config.teamNames[idx], players: [] }));
-              finalAvailable = newPlayers;
+              await syncToCloud({ matches: newMatches });
+          }
+      };
+
+      const handleBracketChange = async (position, teamId) => {
+          if (role !== 'admin') return;
+          const newBracket = { ...bracket, [position]: teamId === '' ? null : Number(teamId) };
+          setBracket(newBracket);
+
+          const matchType = position.replace('Team1', '').replace('Team2', '');
+          const isTeam1 = position.includes('Team1');
+          
+          const updatedMatches = matches.map(m => {
+              if (m.type === matchType) {
+                  return { ...m, [isTeam1 ? 'team1' : 'team2']: teamId === '' ? null : Number(teamId) };
+              }
+              return m;
+          });
+
+          setMatches(updatedMatches);
+          await syncToCloud({ bracket: newBracket, matches: updatedMatches });
+      };
+
+      const calculateStandings = (groupIds) => {
+          let standings = groupIds.map(id => ({ id, p:0, w:0, d:0, l:0, gf:0, ga:0, gd:0, pts:0 }));
+          
+          matches.forEach(m => {
+              if ((m.type === 'groupA' || m.type === 'groupB') && m.score1 !== '' && m.score2 !== '') {
+                  const s1 = parseInt(m.score1);
+                  const s2 = parseInt(m.score2);
+                  if (isNaN(s1) || isNaN(s2)) return;
+
+                  const t1 = standings.find(t => t.id === m.team1);
+                  const t2 = standings.find(t => t.id === m.team2);
+
+                  if (t1 && t2) {
+                      t1.p++; t2.p++;
+                      t1.gf += s1; t1.ga += s2; t1.gd = t1.gf - t1.ga;
+                      t2.gf += s2; t2.ga += s1; t2.gd = t2.gf - t2.ga;
+
+                      if (s1 > s2) { t1.w++; t1.pts += 3; t2.l++; }
+                      else if (s1 < s2) { t2.w++; t2.pts += 3; t1.l++; }
+                      else { t1.d++; t2.d++; t1.pts += 1; t2.pts += 1; }
+                  }
+              }
+          });
+
+          return standings.sort((a, b) => {
+              if (b.pts !== a.pts) return b.pts - a.pts;
+              if (b.gd !== a.gd) return b.gd - a.gd;
+              return b.gf - a.gf;
+          });
+      };
+
+      const standingsA = calculateStandings(groups.A);
+      const standingsB = calculateStandings(groups.B);
+
+      const handleAutoFillSemi = async () => {
+          if (role !== 'admin') return;
+          if (standingsA.length < 2 || standingsB.length < 2) {
+              alert("Bảng đấu chưa có đủ đội (Cần ít nhất 2 đội mỗi bảng)!");
+              return;
+          }
+          if(!window.confirm("Hệ thống sẽ tự động xếp:\n- Bán Kết 1: Nhất A gặp Nhì B\n- Bán Kết 2: Nhất B gặp Nhì A\n\nBạn có muốn tiếp tục?")) return;
+
+          const team1A = standingsA[0].id;
+          const team2A = standingsA[1].id;
+          const team1B = standingsB[0].id;
+          const team2B = standingsB[1].id;
+
+          const newBracket = {
+              ...bracket,
+              semi1Team1: team1A,
+              semi1Team2: team2B,
+              semi2Team1: team1B,
+              semi2Team2: team2A
+          };
+          
+          const updatedMatches = matches.map(m => {
+              if (m.type === 'semi1') return { ...m, team1: team1A, team2: team2B };
+              if (m.type === 'semi2') return { ...m, team1: team1B, team2: team2A };
+              return m;
+          });
+
+          setBracket(newBracket);
+          setMatches(updatedMatches);
+          await syncToCloud({ bracket: newBracket, matches: updatedMatches });
+      };
+
+      const renderTeamNameObj = (teamId, matchType) => {
+          if(!teamId) {
+             if(matchType === 'semi1') return <span className="text-slate-500 text-xs md:text-sm italic">Nhất A / Nhì B</span>;
+             if(matchType === 'semi2') return <span className="text-slate-500 text-xs md:text-sm italic">Nhất B / Nhì A</span>;
+             if(matchType === 'third') return <span className="text-slate-500 text-xs md:text-sm italic">Thua BK 1 / Thua BK 2</span>;
+             if(matchType === 'final') return <span className="text-slate-500 text-xs md:text-sm italic">Thắng BK 1 / Thắng BK 2</span>;
+             return <span className="text-slate-500 text-xs md:text-sm italic">Chưa xác định</span>;
+          }
+          const t = teams.find(x => x.id === teamId);
+          return t ? <span className="font-bold text-slate-200">{t.name}</span> : <span className="text-slate-500">???</span>;
+      };
+      
+      const renderTeamLogo = (teamId) => {
+          const t = teams.find(x => x.id === teamId);
+          if (t && t.logo) return <img src={t.logo} className="w-5 h-5 md:w-6 md:h-6 object-contain mr-2" alt="logo" />;
+          return <div className="w-5 h-5 md:w-6 md:h-6 bg-slate-800 rounded-full mr-2 flex-shrink-0 border border-white/10"></div>;
+      };
+
+      const getMatchTitle = (type) => {
+          if(type === 'groupA') return "Bảng A";
+          if(type === 'groupB') return "Bảng B";
+          if(type === 'semi1') return "Bán Kết 1";
+          if(type === 'semi2') return "Bán Kết 2";
+          if(type === 'third') return "Tranh Hạng 3";
+          if(type === 'final') return "Chung Kết";
+          return "";
+      }
+
+      const renderMatchTeamSelect = (match, isTeam1) => {
+          const teamId = isTeam1 ? match.team1 : match.team2;
+          let availableTeams = [];
+          if (match.type === 'groupA') availableTeams = groups.A.map(id => teams.find(t => t.id === id));
+          else if (match.type === 'groupB') availableTeams = groups.B.map(id => teams.find(t => t.id === id));
+          else availableTeams = teams.filter(t => [...groups.A, ...groups.B].includes(t.id));
+
+          return (
+              <select
+                  value={teamId || ''}
+                  onChange={(e) => handleChangeMatchTeam(match.id, isTeam1, e.target.value)}
+                  className="bg-transparent text-slate-200 text-xs md:text-base font-bold appearance-none cursor-pointer outline-none max-w-[100px] md:max-w-[140px] truncate w-full hover:text-amber-400 transition"
+                  style={{ textAlignLast: isTeam1 ? 'right' : 'left' }}
+              >
+                  <option value="" className="bg-slate-900 text-slate-500">Chọn đội...</option>
+                  {availableTeams.map(t => t ? <option key={t.id} value={t.id} className="bg-slate-900 text-white">{t.name}</option> : null)}
+              </select>
+          );
+      };
+
+      // Hàm nhóm các trận đấu thành từng cặp
+      const matchGroups = [];
+      for (let i = 0; i < matches.length; i += 2) {
+          matchGroups.push(matches.slice(i, i + 2));
+      }
+
+      const handleExportSchedule = () => {
+          if(matches.length === 0) {
+              alert("Chưa có lịch thi đấu để xuất!");
+              return;
           }
 
-          setAvailablePlayers(finalAvailable);
-          setShowSettings(false);
-          setCsvInput('');
-          setTeams(finalTeams);
-          await syncToCloud({ availablePlayers: finalAvailable, teams: finalTeams });
-        } else {
-          alert("Không nhận diện được cầu thủ. Hãy copy đúng cấu trúc Excel nhé!");
-        }
-      };
+          let content = "=========================================\n";
+          content += "    LỊCH THI ĐẤU & KẾT QUẢ UNI LEAGUE    \n";
+          content += "=========================================\n\n";
 
-      const handleTeamNameChange = async (index, value) => {
-        const newNames = [...config.teamNames];
-        newNames[index] = value;
-        const newConfig = {...config, teamNames: newNames};
-        setConfig(newConfig);
-        const newTeams = [...teams];
-        newTeams[index].name = value;
-        setTeams(newTeams);
-        await syncToCloud({ config: newConfig, teams: newTeams });
-      };
-
-      const openEditModal = (player, currentTeamId = 'pool') => {
-          if (role !== 'admin') return;
-          setEditingPlayer({ ...player, originalTeamId: currentTeamId });
-          setEditFormData({ name: player.name, position: player.position, isCaptain: player.isCaptain || false, targetTeamId: currentTeamId });
-      };
-
-      const savePlayerEdit = async () => {
-          if (!editingPlayer || !editFormData.name.trim()) return;
-
-          const updatedPlayer = { ...editingPlayer, name: editFormData.name, position: editFormData.position, isCaptain: editFormData.isCaptain };
-          delete updatedPlayer.originalTeamId;
-
-          let newAvailable = [...availablePlayers];
-          let newTeams = JSON.parse(JSON.stringify(teams));
-
-          if (editingPlayer.originalTeamId === 'pool') newAvailable = newAvailable.filter(p => p.id !== editingPlayer.id);
-          else newTeams = newTeams.map(t => {
-                  if (t.id.toString() === editingPlayer.originalTeamId.toString()) return { ...t, players: t.players.filter(p => p.id !== editingPlayer.id) };
-                  return t;
+          // 1. BXH
+          content += ">>> BẢNG XẾP HẠNG <<<\n";
+          const formatStandings = (standings, groupName) => {
+              content += `\n[ ${groupName} ]\n`;
+              standings.forEach((t, i) => {
+                  const teamName = teams.find(x => x.id === t.id)?.name || 'Chưa xác định';
+                  content += `${i+1}. ${teamName} | ${t.pts}đ | Hệ số: ${t.gf}-${t.ga} (${t.gd > 0 ? '+'+t.gd : t.gd})\n`;
               });
+          };
+          formatStandings(standingsA, "BẢNG A");
+          formatStandings(standingsB, "BẢNG B");
+          content += "\n-----------------------------------------\n\n";
 
-          if (editFormData.targetTeamId === 'pool') newAvailable.push(updatedPlayer);
-          else newTeams = newTeams.map(t => {
-                  if (t.id.toString() === editFormData.targetTeamId.toString()) return { ...t, players: [...t.players, updatedPlayer] };
-                  return t;
+          // 2. KNOCKOUT
+          content += ">>> SƠ ĐỒ KNOCK-OUT <<<\n\n";
+          
+          const getTName = (tid, fallback) => {
+              if(!tid) return fallback;
+              return teams.find(x => x.id === tid)?.name || fallback;
+          };
+
+          const semi1_1 = getTName(bracket.semi1Team1, "Nhất A");
+          const semi1_2 = getTName(bracket.semi1Team2, "Nhì B");
+          const semi2_1 = getTName(bracket.semi2Team1, "Nhất B");
+          const semi2_2 = getTName(bracket.semi2Team2, "Nhì A");
+          
+          content += `[ BÁN KẾT 1 ] : ${semi1_1}  vs  ${semi1_2}\n`;
+          content += `[ BÁN KẾT 2 ] : ${semi2_1}  vs  ${semi2_2}\n\n`;
+          
+          const third_1 = getTName(bracket.thirdTeam1, "Thua BK 1");
+          const third_2 = getTName(bracket.thirdTeam2, "Thua BK 2");
+          content += `[ HẠNG 3 ]    : ${third_1}  vs  ${third_2}\n\n`;
+
+          const final_1 = getTName(bracket.finalTeam1, "Thắng BK 1");
+          const final_2 = getTName(bracket.finalTeam2, "Thắng BK 2");
+          content += `[ CHUNG KẾT ] : ${final_1}  vs  ${final_2}\n`;
+
+          content += "\n-----------------------------------------\n\n";
+
+          // 3. LỊCH THI ĐẤU
+          content += ">>> LỊCH THI ĐẤU CHI TIẾT <<<\n";
+          matchGroups.forEach((group, dayIndex) => {
+              const dayTitle = days[dayIndex] || `Ngày thi đấu ${dayIndex + 1}`;
+              content += `\n--- ${dayTitle.toUpperCase()} ---\n`;
+              group.forEach(m => {
+                  const t1Name = getTName(m.team1, '???');
+                  const t2Name = getTName(m.team2, '???');
+                  const score = (m.score1 !== '' && m.score2 !== '') ? `[ ${m.score1} - ${m.score2} ]` : '  vs  ';
+                  const matchTitle = getMatchTitle(m.type);
+                  content += `* ${matchTitle}: ${t1Name} ${score} ${t2Name}\n`;
               });
+          });
 
-          setAvailablePlayers(newAvailable);
-          setTeams(newTeams);
-          setEditingPlayer(null);
-          await syncToCloud({ availablePlayers: newAvailable, teams: newTeams });
-      };
+          content += "\n=========================================\n";
+          content += `Xuất lúc: ${new Date().toLocaleString('vi-VN')}\n`;
 
-      const handleExportTXT = () => {
-         let content = "=== KẾT QUẢ BỐC THĂM UNI LEAGUE ===\n\n";
-         
-         // Xuất Bảng đấu
-         content += "=== CHIA BẢNG ĐẤU ===\n";
-         content += "BẢNG A:\n";
-         groups.A.forEach(teamId => {
-             const t = teams.find(x => x.id === teamId);
-             if(t) content += `- ${t.name}\n`;
-         });
-         content += "\nBẢNG B:\n";
-         groups.B.forEach(teamId => {
-             const t = teams.find(x => x.id === teamId);
-             if(t) content += `- ${t.name}\n`;
-         });
-         content += "\n===================================\n\n";
-
-         // Xuất Đội hình
-         teams.forEach(team => {
-            content += `>> ${team.name.toUpperCase()} (${team.players.length}/${config.maxPlayersPerTeam} cầu thủ)\n`;
-            if (team.players.length === 0) content += `   - Chưa có cầu thủ nào.\n`;
-            else team.players.forEach((p, idx) => { content += `   ${idx + 1}. ${p.name} ${p.isCaptain ? '(C)' : ''} - [${p.position}]\n`; });
-            content += `\n-----------------------------------\n\n`;
-         });
-         content += `>> DANH SÁCH CHỜ (Chưa bốc: ${availablePlayers.length})\n`;
-         if (availablePlayers.length > 0) availablePlayers.forEach((p, idx) => { content += `   ${idx + 1}. ${p.name} ${p.isCaptain ? '(C)' : ''} - [${p.position}]\n`; });
-
-         const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
-         const url = URL.createObjectURL(blob);
-         const link = document.createElement('a');
-         link.href = url;
-         link.download = `Ket_Qua_Draft_${new Date().toISOString().split('T')[0]}.txt`;
-         document.body.appendChild(link);
-         link.click();
-         document.body.removeChild(link);
+          const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `Lich_Thi_Dau_UniLeague_${new Date().toISOString().split('T')[0]}.txt`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
       };
 
       const handleExportImage = async () => {
+          const captureElement = document.getElementById('capture-area');
+          if (!captureElement) return;
+
           setIsExportingImage(true);
           try {
-              const element = document.getElementById('export-container');
-              element.style.opacity = '1';
-
-              const canvas = await html2canvas(element, {
-                  scale: 2, 
+              // Thêm padding và background để ảnh xuất ra đẹp, không bị lỗi nền trong suốt
+              const canvas = await html2canvas(captureElement, {
+                  backgroundColor: '#0a0f1c', // Màu nền gốc của body
+                  scale: 2, // Tăng độ nét gấp đôi
                   useCORS: true,
-                  allowTaint: true,
-                  backgroundColor: '#0a0f1c',
-                  windowWidth: 1600,
-                  scrollY: 0,
-                  scrollX: 0,
-                  windowHeight: element.scrollHeight
+                  windowWidth: captureElement.scrollWidth,
+                  windowHeight: captureElement.scrollHeight
               });
               
+              const imgData = canvas.toDataURL('image/png');
               const link = document.createElement('a');
-              link.download = `UNI_LEAGUE_TEAMS_${new Date().getTime()}.png`;
-              link.href = canvas.toDataURL('image/png', 1.0);
+              link.href = imgData;
+              link.download = `Hinh_Lich_Dau_UniLeague_${new Date().toISOString().split('T')[0]}.png`;
+              document.body.appendChild(link);
               link.click();
-              
-              element.style.opacity = '0';
+              document.body.removeChild(link);
           } catch (error) {
-              console.error("Lỗi xuất ảnh:", error);
-              alert("Có lỗi xảy ra khi xuất ảnh. Hãy thử lại!");
+              console.error("Lỗi khi xuất ảnh:", error);
+              alert("Có lỗi xảy ra khi tạo ảnh. Vui lòng thử lại!");
           } finally {
               setIsExportingImage(false);
           }
       };
 
-      const totalDrafted = teams.reduce((sum, t) => sum + t.players.length, 0);
-      const totalPlayers = availablePlayers.length + totalDrafted;
-      const captainsInPool = availablePlayers.filter(p => p.isCaptain).length;
-
-      const getPlayerNameClass = (name) => {
-          if (!name) return 'text-4xl sm:text-6xl md:text-7xl lg:text-8xl';
-          const len = name.length;
-          if (len >= 20) return 'text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl';
-          if (len >= 16) return 'text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl';
-          if (len >= 13) return 'text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-[4.5rem]';
-          if (len >= 10) return 'text-4xl sm:text-5xl md:text-6xl lg:text-[5.5rem] xl:text-[6rem]';
-          return 'text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-[6.5rem]';
-      };
-
-      const getCaptainNameClass = (name) => {
-          if (!name) return 'text-sm sm:text-lg lg:text-2xl';
-          const len = name.length;
-          if (len >= 20) return 'text-[10px] sm:text-[11px] md:text-xs lg:text-[14px]';
-          if (len >= 16) return 'text-[11px] sm:text-xs md:text-[13px] lg:text-base';
-          if (len >= 12) return 'text-xs sm:text-sm md:text-base lg:text-lg';
-          return 'text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl';
-      };
-
-      const renderStars = (count) => {
-          return Array.from({length: count}).map((_, i) => (
-              <div key={`star-${i}`} className="absolute bg-white rounded-full sparkle-star pointer-events-none" style={{
-                  left: `${(i * 29) % 100}%`,
-                  top: `${(i * 17) % 100}%`,
-                  width: `${1 + (i % 3)}px`,
-                  height: `${1 + (i % 3)}px`,
-                  animationDelay: `${(i * 0.13) % 2}s`,
-                  animationDuration: `${2 + (i % 3)}s`,
-                  boxShadow: '0 0 8px 1px rgba(255,255,255,0.6)'
-              }}></div>
-          ));
-      };
-
-      // Xác định bảng mục tiêu tiếp theo và logic màu sắc Nút cho Tab Bảng đấu
-      const unassignedTeamsCount = teams.filter(t => ![...groups.A, ...groups.B].includes(t.id)).length;
-      const nextGroupTarget = groups.A.length <= groups.B.length ? 'A' : 'B';
-      const drawGroupBtnColor = unassignedTeamsCount === 0 
-          ? 'bg-slate-800 text-slate-500 cursor-not-allowed border border-white/5'
-          : nextGroupTarget === 'A' 
-              ? 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white shadow-[0_0_20px_rgba(245,158,11,0.4)]'
-              : 'bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-400 hover:to-cyan-400 text-white shadow-[0_0_20px_rgba(59,130,246,0.4)]';
-
       return (
-        <div className="fixed inset-0 flex flex-col bg-[#0a0f1c]">
-          
-          {/* DIV ẨN - XUẤT ẢNH */}
-          <div id="export-container" className="fixed top-0 left-[-9999px] w-[1600px] h-auto min-h-screen bg-[#0a0f1c] p-12 flex flex-col font-sans opacity-0 pointer-events-none" style={{ zIndex: -9999 }}>
-              <div className="absolute inset-0 z-0 opacity-20 pointer-events-none" style={{ backgroundImage: 'linear-gradient(to right, #ffffff05 1px, transparent 1px), linear-gradient(to bottom, #ffffff05 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[300px] bg-amber-600/10 blur-[100px] rounded-full z-0"></div>
-
-              <div className="relative z-10 flex items-center justify-between mb-12 border-b-2 border-white/10 pb-8">
-                  <div className="flex items-center space-x-6">
-                      <div className="w-20 h-20 bg-gradient-to-br from-amber-400 to-amber-600 rounded-2xl flex items-center justify-center shadow-lg"><IconTrophy className="text-slate-950" size={48} strokeWidth={2.5} /></div>
-                      <div>
-                          <h1 className="text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-amber-500 uppercase tracking-widest drop-shadow-md">UNI LEAGUE</h1>
-                          <p className="text-xl text-slate-400 font-bold uppercase tracking-[0.3em] mt-2">Danh Sách Các Đội Bóng Chính Thức</p>
-                      </div>
-                  </div>
-                  <div className="text-right">
-                      <div className="text-4xl font-black text-white">{totalDrafted} Cầu Thủ</div>
-                      <div className="text-lg text-slate-500 font-bold uppercase mt-1">Đã Phân Bổ: {teams.length} Đội</div>
-                  </div>
-              </div>
-              
-              <div className="relative z-10 grid grid-cols-3 gap-8 pb-12">
-                  {teams.map(team => (
-                      <div key={team.id} className="bg-slate-900 border-2 border-white/10 rounded-3xl overflow-hidden shadow-2xl relative">
-                          <div className={`p-6 flex items-center justify-between bg-gradient-to-r ${team.colorFrom} ${team.colorTo} shadow-md relative`}>
-                              <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20 mix-blend-overlay"></div>
-                              <div className="flex items-center space-x-4 relative z-10">
-                                  {team.logo && <img src={team.logo} crossOrigin="anonymous" className="w-16 h-16 object-contain drop-shadow-lg" alt="logo" />}
-                                  <h2 className="text-3xl font-black text-white uppercase italic drop-shadow-md leading-normal py-1">{team.name}</h2>
-                              </div>
-                              <span className="relative z-10 bg-black/40 px-4 py-1.5 rounded-xl text-white font-black text-xl border border-white/20">{team.players.length}/{config.maxPlayersPerTeam}</span>
-                          </div>
-                          <div className="p-5 space-y-3 bg-slate-800/80 min-h-[400px]">
-                              {team.players.map((p, i) => (
-                                  <div key={p.id} className={`flex items-center border-b border-white/5 pb-3 mb-3 last:border-0 last:mb-0 last:pb-0 ${p.isCaptain ? 'bg-amber-500/10 p-3 rounded-xl border-amber-500/20' : ''}`}>
-                                      <span className={`w-10 text-2xl font-black italic mr-3 text-center ${p.isCaptain ? 'text-yellow-400' : 'text-slate-500'}`}>{String(i+1).padStart(2,'0')}</span>
-                                      <span className="flex-1 text-2xl font-bold text-slate-100 flex items-center break-words leading-relaxed py-1">
-                                          {p.name} {p.isCaptain && <IconCrown size={24} className="text-yellow-400 ml-3 drop-shadow-md shrink-0"/>}
-                                      </span>
-                                      <span className={`shrink-0 text-sm px-3 py-1.5 rounded-lg border-2 font-bold uppercase ${p.position === 'Thủ môn' ? 'bg-amber-400/20 text-amber-400 border-amber-400/30' : p.position === 'Hậu vệ' ? 'bg-blue-400/20 text-blue-400 border-blue-400/30' : p.position === 'Tiền vệ' ? 'bg-emerald-400/20 text-emerald-400 border-emerald-400/30' : 'bg-rose-400/20 text-rose-400 border-rose-400/30'}`}>{p.position}</span>
-                                  </div>
-                              ))}
-                          </div>
-                      </div>
-                  ))}
-              </div>
-              <div className="relative z-10 mt-auto text-center text-slate-500 text-lg font-bold pb-4">
-                  Hệ thống UNI LEAGUE DRAFT • Xuất ngày {new Date().toLocaleDateString('vi-VN')} lúc {new Date().toLocaleTimeString('vi-VN')}
-              </div>
-          </div>
-          {/* KẾT THÚC DIV ẨN */}
-
+        <div className="flex-1 flex flex-col relative w-full h-full">
           <div className="absolute inset-0 z-0 opacity-20 pointer-events-none" style={{ backgroundImage: 'linear-gradient(to right, #ffffff05 1px, transparent 1px), linear-gradient(to bottom, #ffffff05 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-blue-600/10 blur-[80px] md:blur-[120px] rounded-full pointer-events-none z-0 transform-gpu"></div>
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-emerald-600/10 blur-[80px] md:blur-[120px] rounded-full pointer-events-none z-0 transform-gpu"></div>
 
           {/* HEADER */}
-          <header className="relative z-20 bg-slate-900/80 backdrop-blur-md border-b border-white/5 px-4 md:px-6 py-3 md:py-4 flex justify-between items-center shadow-lg flex-shrink-0">
-            <div className="flex items-center space-x-3 md:space-x-4">
-              <div className="relative cursor-pointer group" onClick={onBack} title="Quay lại">
-                <div className="absolute inset-0 bg-amber-400 blur-md opacity-30 rounded-full group-hover:animate-ping"></div>
-                <div className="relative w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-amber-300 via-amber-500 to-amber-700 rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(245,158,11,0.2)] border border-amber-200/50 transform rotate-3">
-                  <IconTrophy className="text-slate-950" size={24} strokeWidth={2.5} />
+          <header className="relative z-20 bg-slate-900/80 backdrop-blur-md border-b border-white/5 px-3 md:px-6 py-3 md:py-4 flex justify-between items-center shadow-lg flex-shrink-0">
+            <div className="flex items-center space-x-2 md:space-x-4 shrink-0">
+              <div className="relative cursor-pointer group flex-shrink-0" onClick={onBack} title="Quay lại">
+                <div className="absolute inset-0 bg-emerald-400 blur-md opacity-30 rounded-full group-hover:animate-ping"></div>
+                <div className="relative w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-emerald-300 via-emerald-500 to-teal-700 rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(16,185,129,0.2)] border border-emerald-200/50 transform rotate-3">
+                  <IconCalendar className="text-slate-950" size={24} strokeWidth={2.5} />
                 </div>
               </div>
               <div>
-                <h1 className="text-xl md:text-3xl font-black tracking-tighter uppercase text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-amber-200 drop-shadow-lg leading-none">UNI LEAGUE</h1>
-                <div className="flex items-center space-x-2 mt-1">
-                    <button onClick={() => setActiveTab('draft')} className={`px-2 py-0.5 rounded text-[10px] md:text-xs font-bold tracking-wider uppercase transition-colors flex items-center ${activeTab === 'draft' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'text-slate-500 hover:text-slate-300'}`}><IconUsers size={12} className="mr-1"/> Cầu Thủ</button>
-                    <button onClick={() => setActiveTab('groups')} className={`px-2 py-0.5 rounded text-[10px] md:text-xs font-bold tracking-wider uppercase transition-colors flex items-center ${activeTab === 'groups' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'text-slate-500 hover:text-slate-300'}`}><IconSwords size={12} className="mr-1"/> Bảng Đấu</button>
-                </div>
+                <h1 className="text-xl md:text-3xl font-black tracking-tighter uppercase text-transparent bg-clip-text bg-gradient-to-r from-emerald-200 via-emerald-400 to-emerald-200 drop-shadow-lg leading-none">UNI LEAGUE</h1>
+                <div className="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Lịch Thi Đấu & Kết Quả</div>
               </div>
             </div>
 
-            <div className="flex space-x-2 md:space-x-3 items-center">
+            <div className="flex space-x-2 md:space-x-3 items-center shrink-0">
+              <button onClick={handleExportImage} disabled={isExportingImage || matches.length === 0} className="bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-cyan-500/30 px-3 py-2 md:px-4 md:py-2.5 rounded-xl font-bold flex items-center transition text-xs md:text-sm shrink-0 shadow-lg disabled:opacity-50">
+                 {isExportingImage ? <IconRotateCcw size={16} className="mr-1.5 md:mr-2 animate-spin" /> : <IconCamera size={16} className="mr-1.5 md:mr-2" />} 
+                 <span className="hidden sm:inline">{isExportingImage ? 'Đang tạo...' : 'Lưu Ảnh'}</span>
+              </button>
+
+              <button onClick={handleExportSchedule} className="bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-emerald-500/30 px-3 py-2 md:px-4 md:py-2.5 rounded-xl font-bold flex items-center transition text-xs md:text-sm shrink-0 shadow-lg">
+                 <IconDownload size={16} className="mr-1.5 md:mr-2" /> <span className="hidden sm:inline">Xuất File</span>
+              </button>
+
               {role === 'admin' && !dbError && (
                  <div className="hidden lg:flex items-center space-x-2 mr-2 px-3 py-1.5 rounded-lg bg-slate-800/50 border border-white/5">
                     {!isSynced ? (
-                       <><IconRotateCcw size={14} className="text-yellow-400 animate-spin" /><span className="text-[10px] text-yellow-400 uppercase tracking-widest font-bold">Lưu Tạm (Chờ Mạng)</span></>
+                       <><IconRotateCcw size={14} className="text-yellow-400 animate-spin" /><span className="text-[10px] text-yellow-400 uppercase tracking-widest font-bold whitespace-nowrap">Lưu Tạm</span></>
                     ) : syncStatus === 'saving' ? (
-                       <><IconRotateCcw size={14} className="text-amber-400 animate-spin" /><span className="text-[10px] text-amber-400 uppercase tracking-widest font-bold">Đang lưu...</span></>
+                       <><IconRotateCcw size={14} className="text-emerald-400 animate-spin" /><span className="text-[10px] text-emerald-400 uppercase tracking-widest font-bold whitespace-nowrap">Đang lưu...</span></>
                     ) : (
-                       <><IconCheckCircle size={14} className="text-emerald-400" /><span className="text-[10px] text-emerald-400 uppercase tracking-widest font-bold">Đã lưu Cloud</span></>
+                       <><IconCheckCircle size={14} className="text-emerald-400" /><span className="text-[10px] text-emerald-400 uppercase tracking-widest font-bold whitespace-nowrap">Đã lưu Cloud</span></>
                     )}
                  </div>
               )}
               
-              {role === 'admin' && (
-                <>
-                  <button onClick={() => setShowSettings(true)} disabled={lottery.active || captainReveal.active || groupDraw.active} className="p-2 md:p-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg transition border border-white/5"><IconSettings size={18} /></button>
-                  
-                  {/* CÁC NÚT ĐIỀU KHIỂN RIÊNG CHO TỪNG TAB */}
-                  {activeTab === 'draft' ? (
-                    <>
-                        {captainsInPool > 0 && totalDrafted === 0 && (
-                            <button onClick={triggerCaptainDraw} className="bg-gradient-to-r from-yellow-400 to-yellow-600 hover:from-yellow-300 hover:to-yellow-500 text-black px-3 py-2 md:px-6 md:py-3 rounded-xl font-black uppercase tracking-widest shadow-[0_0_20px_rgba(250,204,21,0.5)] flex items-center animate-pulse text-sm md:text-base">
-                                <IconCrown size={18} className="mr-1 md:mr-2" /> Bốc Đội Trưởng
-                            </button>
-                        )}
-                        <button onClick={triggerFastDraw} disabled={lottery.active || captainReveal.active || availablePlayers.length === 0}
-                            className={`relative group overflow-hidden flex items-center space-x-1 md:space-x-2 px-3 py-2 md:px-5 md:py-3 rounded-xl font-black uppercase tracking-widest transition-all duration-300 text-sm md:text-base ${lottery.active || availablePlayers.length === 0 ? 'bg-slate-800 text-slate-500 cursor-not-allowed border border-white/5' : 'bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-400 hover:to-indigo-500 text-white shadow-[0_0_20px_rgba(59,130,246,0.4)]'}`}>
-                            <IconZap size={18} className={(!lottery.active && availablePlayers.length > 0) ? "animate-pulse" : ""} />
-                            <span className="relative z-10 hidden sm:block">Bốc x6</span>
-                            <span className="relative z-10 sm:hidden">x6</span>
-                        </button>
-                        <button onClick={triggerNextDraw} disabled={lottery.active || captainReveal.active || availablePlayers.length === 0}
-                            className={`relative group overflow-hidden flex items-center space-x-2 px-4 py-2 md:px-8 md:py-3 rounded-xl font-black uppercase tracking-widest transition-all duration-300 text-sm md:text-base ${lottery.active || availablePlayers.length === 0 ? 'bg-slate-800 text-slate-500 cursor-not-allowed border border-white/5' : 'bg-gradient-to-r from-amber-400 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-slate-950 shadow-[0_0_20px_rgba(245,158,11,0.3)]'}`}>
-                            <IconDices size={18} className={(!lottery.active && availablePlayers.length > 0) ? "animate-bounce hidden sm:block" : "hidden sm:block"} />
-                            <span className="relative z-10">{lottery.active ? 'WAIT' : availablePlayers.length === 0 ? 'TRỐNG' : 'NEXT'}</span>
-                        </button>
-                    </>
-                  ) : (
-                    <>
-                        <button onClick={resetGroups} disabled={groupDraw.active} className="bg-slate-800 hover:bg-slate-700 text-rose-400 px-3 py-2 md:px-4 md:py-3 rounded-xl font-bold uppercase tracking-widest transition border border-white/5 text-sm md:text-base flex items-center">
-                            <IconRotateCcw size={16} className="mr-1 md:mr-2"/> Reset
-                        </button>
-                        <button onClick={triggerGroupDraw} disabled={groupDraw.active || unassignedTeamsCount === 0}
-                            className={`relative group overflow-hidden flex items-center space-x-2 px-4 py-2 md:px-8 md:py-3 rounded-xl font-black uppercase tracking-widest transition-all duration-300 text-sm md:text-base ${drawGroupBtnColor}`}>
-                            <IconSwords size={18} className={(!groupDraw.active && unassignedTeamsCount > 0) ? "animate-bounce hidden sm:block" : "hidden sm:block"} />
-                            <span className="relative z-10">{groupDraw.active ? 'WAIT' : unassignedTeamsCount === 0 ? 'ĐÃ XONG' : `BỐC CHO BẢNG ${nextGroupTarget}`}</span>
-                        </button>
-                    </>
-                  )}
-                </>
-              )}
-              {role === 'viewer' && (
-                <div className="bg-emerald-500/10 border border-emerald-500/30 px-3 py-1.5 md:px-4 md:py-2 rounded-xl flex items-center text-emerald-400 text-xs md:text-sm font-bold animate-pulse shadow-[0_0_15px_rgba(16,185,129,0.2)]">
-                   <IconMonitorPlay size={14} className="mr-1 md:mr-2" /> Live
+              {role === 'admin' ? (
+                 <button onClick={generateSchedule} className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 px-3 py-2 sm:px-4 md:px-6 md:py-3 rounded-xl font-black uppercase tracking-widest whitespace-nowrap shadow-[0_0_20px_rgba(16,185,129,0.4)] transition text-xs sm:text-sm md:text-base flex items-center shrink-0">
+                    <IconCalendar size={16} className="mr-1 md:mr-2" /> {matches.length > 0 ? "Tạo Lại Lịch" : "Tạo Lịch Đấu"}
+                 </button>
+              ) : (
+                <div className="bg-emerald-500/10 border border-emerald-500/30 px-2 py-1 md:px-4 md:py-2 rounded-xl flex items-center text-emerald-400 text-[10px] md:text-sm font-bold animate-pulse shadow-[0_0_15px_rgba(16,185,129,0.2)] whitespace-nowrap">
+                   <IconMonitorPlay size={12} className="mr-1 md:mr-2" /> Realtime
                 </div>
               )}
             </div>
           </header>
 
-          <main className="flex-1 p-3 md:p-6 flex flex-col relative z-10 overflow-hidden">
-            {/* GIAO DIỆN TAB: BỐC CẦU THỦ */}
-            {activeTab === 'draft' && (
-                <div className="w-full h-full flex flex-col xl:flex-row gap-4 md:gap-6 overflow-y-auto xl:overflow-hidden custom-scrollbar">
-                    {/* CỘT DANH SÁCH CHỜ */}
-                    <div className="w-full xl:w-[320px] 2xl:w-[360px] flex flex-col h-[300px] xl:h-full flex-shrink-0">
-                      <div className="bg-slate-900/60 backdrop-blur-md rounded-2xl border border-white/10 p-4 flex-1 flex flex-col shadow-lg relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/5 blur-[40px] rounded-full transform-gpu"></div>
-                        <h2 className="text-xs md:text-sm font-black text-white uppercase tracking-widest mb-3 flex items-center border-b border-white/10 pb-3">
-                          <IconHexagon className="mr-2 text-amber-400" size={14} opacity={0.2} /> Danh sách chờ
-                          <span className="ml-auto bg-amber-500/20 text-amber-400 px-2.5 py-0.5 rounded-full text-[10px] md:text-xs">{availablePlayers.length}</span>
-                        </h2>
-                        {availablePlayers.length === 0 ? (
-                           <div className="text-slate-500 text-xs md:text-sm text-center mt-6 md:mt-10 italic border border-dashed border-slate-700/50 p-4 rounded-xl bg-slate-800/20">Trống. <br/>{role === 'admin' ? "Nạp dữ liệu từ Cài đặt!" : "Chờ nạp..."}</div>
-                        ) : (
-                          <div className="overflow-y-auto flex-1 pr-2 space-y-4 custom-scrollbar pb-2">
-                            {POSITIONS.map(pos => {
-                              const playersInPos = availablePlayers.filter(p => p.position === pos);
-                              if (playersInPos.length === 0) return null;
-                              return (
-                                <div key={pos} className="relative">
-                                  <div className="sticky top-0 bg-slate-900/95 backdrop-blur-sm z-10 py-1.5 mb-2 text-[10px] md:text-[11px] font-black text-slate-400 uppercase tracking-widest flex items-center"><div className="w-1.5 h-1.5 rounded-full bg-slate-500 mr-2"></div>{pos} <span className="ml-1 opacity-50">({playersInPos.length})</span></div>
-                                  <div className="space-y-1.5">
-                                    {playersInPos.map(p => (
-                                      <div key={p.id} onClick={() => openEditModal(p, 'pool')} className={`group text-xs md:text-sm py-2 px-3 bg-white/5 border border-white/5 rounded-lg flex justify-between items-center transition-all duration-300 ${role === 'admin' ? 'cursor-pointer hover:bg-slate-700 hover:border-amber-500/50' : ''} ${lottery.player?.id === p.id && lottery.phase !== '' ? 'bg-amber-500 text-slate-950 font-bold scale-[1.02] shadow-[0_0_15px_rgba(245,158,11,0.4)] border-amber-400' : 'text-slate-300'}`}>
-                                        <span className="truncate flex items-center">
-                                            {p.isCaptain && <IconCrown size={14} className="text-yellow-400 mr-1 inline"/>}
-                                            {p.name}
-                                        </span>
-                                        {role === 'admin' && <IconEdit size={12} className="opacity-0 group-hover:opacity-100 text-amber-400 transition-opacity" />}
-                                      </div>
-                                    ))}
-                                  </div>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* CỘT CÁC ĐỘI BÓNG */}
-                    <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5 content-start xl:overflow-y-auto custom-scrollbar xl:pr-2 pb-10 xl:pb-4">
-                      {teams.map((team) => (
-                        <div key={team.id} className={`bg-slate-900/60 backdrop-blur-md rounded-2xl border border-white/10 flex flex-col h-[320px] md:h-[340px] relative overflow-hidden transition-all duration-500 ${lottery.team?.id === team.id && lottery.phase === 'result' ? 'ring-2 ring-white scale-[1.02] shadow-xl z-20' : team.shadow}`}>
-                          {lottery.team?.id === team.id && lottery.phase === 'result' && <div className={`absolute inset-0 opacity-20 bg-gradient-to-br ${team.colorFrom} ${team.colorTo} animate-pulse z-0 transform-gpu`}></div>}
-                          <div className={`relative z-10 p-3 md:p-4 flex justify-between items-center bg-gradient-to-r ${team.colorFrom} ${team.colorTo} shadow-md`}>
-                            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10 mix-blend-overlay pointer-events-none"></div>
-                            <div className="flex items-center space-x-2 md:space-x-3 relative z-10">
-                                {team.logo && <img src={team.logo} alt={team.name} className="w-8 h-8 md:w-10 md:h-10 object-contain drop-shadow-md" onError={(e) => e.target.style.display='none'} />}
-                                <h3 className={`font-black text-lg md:text-xl text-white tracking-wide uppercase italic ${team.textGlow}`}>{team.name}</h3>
-                            </div>
-                            <div className="relative z-10 bg-black/40 px-2.5 py-1 rounded-lg border border-white/20 text-xs md:text-sm font-black text-white flex items-center"><IconUsers size={12} className="mr-1 md:mr-1.5 opacity-70" />{team.players.length}<span className="text-white/50 mx-0.5">/</span>{config.maxPlayersPerTeam}</div>
-                          </div>
-                          <div className="p-2.5 md:p-3 flex-1 flex flex-col space-y-2 overflow-y-auto custom-scrollbar relative z-10">
-                            {team.players.map((p, i) => (
-                              <div key={p.id} onClick={() => openEditModal(p, team.id)} className={`group relative flex items-center bg-slate-800/50 border p-2 md:p-2.5 rounded-xl animate-fade-in-right ${role==='admin' ? 'cursor-pointer hover:bg-slate-700 hover:border-amber-400' : 'border-white/5'} ${p.isCaptain ? 'border-yellow-500/30 shadow-[0_0_10px_rgba(250,204,21,0.1)]' : ''}`}>
-                                <div className={`w-6 md:w-8 text-center text-base md:text-xl font-black italic mr-2 md:mr-3 ${p.isCaptain ? 'text-yellow-400' : 'text-slate-500/50'}`}>{(i + 1).toString().padStart(2, '0')}</div>
-                                <div className="flex-1 font-bold text-slate-200 text-sm md:text-[15px] truncate mr-2 flex items-center">
-                                    {p.name}
-                                    {p.isCaptain && <IconCrown size={14} className="text-yellow-400 ml-2" title="Đội trưởng"/>}
-                                </div>
-                                <div className={`text-[9px] md:text-[10px] px-1.5 py-0.5 md:px-2 md:py-1 rounded-md border flex items-center font-bold tracking-wider uppercase ${getPositionColor(p.position)}`}>{p.position}</div>
-                                {role === 'admin' && <div className="absolute right-2 opacity-0 group-hover:opacity-100 bg-slate-800 p-1 rounded border border-white/10"><IconEdit size={12} className="text-amber-400" /></div>}
-                              </div>
-                            ))}
-                            {Array.from({ length: Math.max(0, config.maxPlayersPerTeam - team.players.length) }).map((_, i) => (
-                              <div key={`empty-${i}`} className="flex items-center bg-slate-800/20 border border-dashed border-white/10 p-2 md:p-2.5 rounded-xl opacity-40"><div className="w-6 md:w-8 text-center text-slate-700 text-base md:text-xl font-black italic mr-2 md:mr-3">{(team.players.length + i + 1).toString().padStart(2, '0')}</div><div className="flex-1 text-slate-600 text-xs md:text-sm italic font-medium">Trống...</div></div>
-                            ))}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+          <main className="flex-1 p-3 md:p-6 overflow-y-auto custom-scrollbar relative z-10 flex flex-col gap-6">
+                
+            {matches.length === 0 ? (
+                <div className="flex-1 flex flex-col items-center justify-center bg-slate-900/60 rounded-3xl border border-white/10 p-10 text-center min-h-[400px]">
+                    <IconCalendar className="text-slate-600 mb-4" size={64}/>
+                    <h2 className="text-2xl text-white font-black uppercase mb-2">Chưa có lịch thi đấu</h2>
+                    <p className="text-slate-400 max-w-md">Vui lòng chờ Ban Tổ Chức (Admin) chia bảng và khởi tạo lịch thi đấu chính thức.</p>
                 </div>
-            )}
+            ) : (
+                <div id="capture-area" className="flex flex-col gap-6 p-2">
+                    {/* KHU VỰC BXH (TOP) */}
+                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                        {/* BXH BẢNG A */}
+                        <div className="bg-slate-900/80 backdrop-blur-md rounded-2xl border border-white/10 overflow-hidden shadow-xl">
+                            <div className="bg-gradient-to-r from-amber-600 to-amber-900 p-3 text-center border-b border-amber-500/30"><h3 className="font-black text-white uppercase tracking-widest text-lg">Bảng Xếp Hạng A</h3></div>
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left text-sm whitespace-nowrap">
+                                    <thead className="text-xs uppercase bg-slate-800/50 text-amber-400 font-bold border-b border-white/10">
+                                        <tr><th className="px-4 py-3">Đội</th><th className="px-2 py-3 text-center">Trận</th><th className="px-2 py-3 text-center">T</th><th className="px-2 py-3 text-center">H</th><th className="px-2 py-3 text-center">B</th><th className="px-2 py-3 text-center">BT-BB</th><th className="px-2 py-3 text-center text-white text-base">Điểm</th></tr>
+                                    </thead>
+                                    <tbody>
+                                        {standingsA.map((t, idx) => {
+                                            const teamInfo = teams.find(x => x.id === t.id);
+                                            return (
+                                                <tr key={t.id} className="border-b border-white/5 last:border-0 hover:bg-white/5 transition-colors">
+                                                    <td className="px-4 py-3 flex items-center space-x-3">
+                                                        <span className={`font-black italic text-lg ${idx < 2 ? 'text-amber-400' : 'text-slate-600'}`}>{idx+1}</span>
+                                                        {renderTeamLogo(t.id)}
+                                                        <span className={`font-bold uppercase ${idx < 2 ? 'text-white' : 'text-slate-400'}`}>{teamInfo?.name || '---'}</span>
+                                                    </td>
+                                                    <td className="px-2 py-3 text-center text-slate-300 font-medium">{t.p}</td>
+                                                    <td className="px-2 py-3 text-center text-emerald-400 font-bold">{t.w}</td>
+                                                    <td className="px-2 py-3 text-center text-slate-400 font-bold">{t.d}</td>
+                                                    <td className="px-2 py-3 text-center text-rose-400 font-bold">{t.l}</td>
+                                                    <td className="px-2 py-3 text-center text-slate-300 font-medium">{t.gf} - {t.ga} <span className={`text-[10px] ml-1 ${t.gd > 0 ? 'text-emerald-400' : t.gd < 0 ? 'text-rose-400' : 'text-slate-500'}`}>({t.gd > 0 ? '+'+t.gd : t.gd})</span></td>
+                                                    <td className="px-2 py-3 text-center text-amber-400 font-black text-lg">{t.pts}</td>
+                                                </tr>
+                                            )
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        {/* BXH BẢNG B */}
+                        <div className="bg-slate-900/80 backdrop-blur-md rounded-2xl border border-white/10 overflow-hidden shadow-xl">
+                            <div className="bg-gradient-to-r from-blue-600 to-blue-900 p-3 text-center border-b border-blue-500/30"><h3 className="font-black text-white uppercase tracking-widest text-lg">Bảng Xếp Hạng B</h3></div>
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left text-sm whitespace-nowrap">
+                                    <thead className="text-xs uppercase bg-slate-800/50 text-cyan-400 font-bold border-b border-white/10">
+                                        <tr><th className="px-4 py-3">Đội</th><th className="px-2 py-3 text-center">Trận</th><th className="px-2 py-3 text-center">T</th><th className="px-2 py-3 text-center">H</th><th className="px-2 py-3 text-center">B</th><th className="px-2 py-3 text-center">BT-BB</th><th className="px-2 py-3 text-center text-white text-base">Điểm</th></tr>
+                                    </thead>
+                                    <tbody>
+                                        {standingsB.map((t, idx) => {
+                                            const teamInfo = teams.find(x => x.id === t.id);
+                                            return (
+                                                <tr key={t.id} className="border-b border-white/5 last:border-0 hover:bg-white/5 transition-colors">
+                                                    <td className="px-4 py-3 flex items-center space-x-3">
+                                                        <span className={`font-black italic text-lg ${idx < 2 ? 'text-cyan-400' : 'text-slate-600'}`}>{idx+1}</span>
+                                                        {renderTeamLogo(t.id)}
+                                                        <span className={`font-bold uppercase ${idx < 2 ? 'text-white' : 'text-slate-400'}`}>{teamInfo?.name || '---'}</span>
+                                                    </td>
+                                                    <td className="px-2 py-3 text-center text-slate-300 font-medium">{t.p}</td>
+                                                    <td className="px-2 py-3 text-center text-emerald-400 font-bold">{t.w}</td>
+                                                    <td className="px-2 py-3 text-center text-slate-400 font-bold">{t.d}</td>
+                                                    <td className="px-2 py-3 text-center text-rose-400 font-bold">{t.l}</td>
+                                                    <td className="px-2 py-3 text-center text-slate-300 font-medium">{t.gf} - {t.ga} <span className={`text-[10px] ml-1 ${t.gd > 0 ? 'text-emerald-400' : t.gd < 0 ? 'text-rose-400' : 'text-slate-500'}`}>({t.gd > 0 ? '+'+t.gd : t.gd})</span></td>
+                                                    <td className="px-2 py-3 text-center text-cyan-400 font-black text-lg">{t.pts}</td>
+                                                </tr>
+                                            )
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
 
-            {/* GIAO DIỆN TAB: CHIA BẢNG ĐẤU */}
-            {activeTab === 'groups' && (
-                <div className="w-full h-full flex flex-col overflow-y-auto custom-scrollbar">
-                    {/* Hàng chờ phân bảng */}
-                    <div className="mb-6 flex-shrink-0 bg-slate-900/60 backdrop-blur-md rounded-2xl border border-white/10 p-4 shadow-lg">
-                        <h2 className="text-sm font-black text-white uppercase tracking-widest mb-3 flex items-center">
-                            <IconSwords className="mr-2 text-cyan-400" size={16} /> Các đội chờ phân bảng
-                        </h2>
-                        <div className="flex flex-wrap gap-3">
-                            {teams.filter(t => ![...groups.A, ...groups.B].includes(t.id)).map(team => (
-                                <div key={team.id} className={`flex items-center space-x-2 bg-gradient-to-r ${team.colorFrom} ${team.colorTo} px-4 py-2 rounded-xl border border-white/20 shadow-md ${groupDraw.team?.id === team.id && groupDraw.phase !== '' ? 'scale-110 ring-2 ring-white z-10' : 'opacity-80'}`}>
-                                    {team.logo && <img src={team.logo} className="w-6 h-6 object-contain" alt="logo" />}
-                                    <span className="font-bold text-white text-sm uppercase italic drop-shadow-md">{team.name}</span>
-                                </div>
-                            ))}
-                            {teams.filter(t => ![...groups.A, ...groups.B].includes(t.id)).length === 0 && (
-                                <div className="text-slate-500 text-sm italic w-full text-center py-2">Tất cả các đội đã được phân bảng.</div>
+                    {/* KHU VỰC SƠ ĐỒ KNOCKOUT (MIDDLE) */}
+                    <div className="bg-slate-900/80 backdrop-blur-md rounded-3xl border border-white/10 p-4 md:p-8 shadow-2xl relative overflow-hidden">
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-[200px] bg-amber-500/5 blur-[80px] pointer-events-none z-0"></div>
+                        
+                        <div className="flex justify-between items-center mb-8 relative z-20">
+                            <h2 className="text-xl md:text-2xl font-black uppercase tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-yellow-500 whitespace-nowrap m-0 md:mx-auto">Sơ Đồ Knock-out</h2>
+                            
+                            {/* Nút Tự động điền Bán kết cho Admin */}
+                            {role === 'admin' && (
+                                <button onClick={handleAutoFillSemi} className="absolute right-0 bg-amber-500/20 hover:bg-amber-500/40 text-amber-400 text-[10px] md:text-xs font-bold px-3 py-2 md:px-4 md:py-2.5 rounded-xl flex items-center border border-amber-500/50 transition whitespace-nowrap shadow-lg">
+                                    <IconWand size={16} className="mr-1.5" /> Lấy Top 2 Bảng
+                                </button>
                             )}
                         </div>
-                    </div>
-
-                    {/* 2 Cột Bảng A và Bảng B */}
-                    <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6 pb-6">
-                        {/* BẢNG A */}
-                        <div className={`bg-slate-900/60 backdrop-blur-md rounded-3xl border-2 overflow-hidden flex flex-col shadow-2xl relative transition-all duration-500 ${groupDraw.group === 'A' && groupDraw.phase === 'result' ? 'border-amber-400 shadow-[0_0_40px_rgba(245,158,11,0.3)] scale-[1.02]' : 'border-white/10'}`}>
-                            <div className="bg-gradient-to-r from-amber-600 to-amber-900 p-4 flex items-center justify-center relative">
-                                <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-30 mix-blend-overlay"></div>
-                                <h3 className="relative z-10 text-3xl font-black text-white tracking-[0.2em] uppercase drop-shadow-lg">BẢNG A</h3>
-                            </div>
-                            <div className="flex-1 p-4 md:p-6 flex flex-col space-y-4 justify-center">
-                                {groups.A.map(teamId => {
-                                    const team = teams.find(t => t.id === teamId);
-                                    if (!team) return null;
-                                    return (
-                                        <div key={teamId} className={`relative overflow-hidden rounded-2xl border-2 border-white/20 bg-gradient-to-r ${team.colorFrom} ${team.colorTo} shadow-lg flex items-center p-4 transform transition-all animate-fade-in-up`}>
-                                            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20 mix-blend-overlay"></div>
-                                            {team.logo && <img src={team.logo} className="w-16 h-16 object-contain drop-shadow-xl relative z-10 mr-4" alt="logo" />}
-                                            <div className="relative z-10">
-                                                <h4 className="text-2xl font-black text-white uppercase italic drop-shadow-md">{team.name}</h4>
+                        
+                        <div className="relative flex flex-col items-center z-10 w-full overflow-x-auto pb-4 custom-scrollbar">
+                            
+                            {/* HÀNG 1: BÁN KẾT & CHUNG KẾT */}
+                            <div className="flex items-center min-w-max px-4">
+                                
+                                {/* CỘT BÁN KẾT */}
+                                <div className="flex flex-col gap-12 w-[260px] md:w-[280px]">
+                                    {/* Bán kết 1 */}
+                                    <div className="bg-slate-800 border-2 border-white/10 rounded-xl p-3 shadow-lg relative z-20 hover:border-amber-500/50 transition-colors">
+                                        <div className="hidden md:block absolute top-1/2 -right-[34px] w-[34px] border-t-2 border-slate-600/70 z-[-1]"></div>
+                                        <div className="hidden md:block absolute top-1/2 -right-[34px] h-[calc(50%+1.5rem)] border-r-2 border-slate-600/70 rounded-tr-lg z-[-1]"></div>
+                                        
+                                        <div className="text-[10px] uppercase font-bold text-slate-500 mb-2 border-b border-white/5 pb-1 text-center">Bán Kết 1</div>
+                                        <div className="flex flex-col gap-2 relative z-30">
+                                            <div className="flex items-center justify-between bg-slate-950 p-2 rounded-lg border border-white/5 relative z-30">
+                                                {role === 'admin' ? (
+                                                    <select value={bracket.semi1Team1 || ''} onChange={(e) => handleBracketChange('semi1Team1', e.target.value)} className="bg-transparent text-xs md:text-sm font-bold text-white outline-none w-full appearance-none cursor-pointer relative z-30 hover:text-amber-400 transition">
+                                                        <option value="" className="text-slate-500 bg-slate-900">Chọn đội...</option>
+                                                        {teams.filter(t => [...groups.A, ...groups.B].includes(t.id)).map(t => <option key={t.id} value={t.id} className="bg-slate-900 text-white">{t.name}</option>)}
+                                                    </select>
+                                                ) : (
+                                                    <div className="flex items-center w-full truncate">{renderTeamLogo(bracket.semi1Team1)}<div className="truncate">{renderTeamNameObj(bracket.semi1Team1, 'semi1')}</div></div>
+                                                )}
+                                            </div>
+                                            <div className="flex items-center justify-between bg-slate-950 p-2 rounded-lg border border-white/5 relative z-30">
+                                                {role === 'admin' ? (
+                                                    <select value={bracket.semi1Team2 || ''} onChange={(e) => handleBracketChange('semi1Team2', e.target.value)} className="bg-transparent text-xs md:text-sm font-bold text-white outline-none w-full appearance-none cursor-pointer relative z-30 hover:text-amber-400 transition">
+                                                        <option value="" className="text-slate-500 bg-slate-900">Chọn đội...</option>
+                                                        {teams.filter(t => [...groups.A, ...groups.B].includes(t.id)).map(t => <option key={t.id} value={t.id} className="bg-slate-900 text-white">{t.name}</option>)}
+                                                    </select>
+                                                ) : (
+                                                    <div className="flex items-center w-full truncate">{renderTeamLogo(bracket.semi1Team2)}<div className="truncate">{renderTeamNameObj(bracket.semi1Team2, 'semi1')}</div></div>
+                                                )}
                                             </div>
                                         </div>
-                                    );
-                                })}
-                                {Array.from({ length: Math.max(0, 3 - groups.A.length) }).map((_, i) => (
-                                    <div key={`empty-a-${i}`} className="rounded-2xl border-2 border-dashed border-white/10 bg-slate-800/30 flex items-center justify-center p-4 h-[96px] opacity-50">
-                                        <span className="text-slate-500 font-black text-xl italic uppercase">Vị trí A{groups.A.length + i + 1}</span>
                                     </div>
-                                ))}
+
+                                    {/* Bán kết 2 */}
+                                    <div className="bg-slate-800 border-2 border-white/10 rounded-xl p-3 shadow-lg relative z-20 hover:border-amber-500/50 transition-colors">
+                                        <div className="hidden md:block absolute top-1/2 -right-[34px] w-[34px] border-t-2 border-slate-600/70 z-[-1]"></div>
+                                        <div className="hidden md:block absolute bottom-1/2 -right-[34px] h-[calc(50%+1.5rem)] border-r-2 border-slate-600/70 rounded-br-lg z-[-1]"></div>
+                                        
+                                        <div className="text-[10px] uppercase font-bold text-slate-500 mb-2 border-b border-white/5 pb-1 text-center">Bán Kết 2</div>
+                                        <div className="flex flex-col gap-2 relative z-30">
+                                            <div className="flex items-center justify-between bg-slate-950 p-2 rounded-lg border border-white/5 relative z-30">
+                                                {role === 'admin' ? (
+                                                    <select value={bracket.semi2Team1 || ''} onChange={(e) => handleBracketChange('semi2Team1', e.target.value)} className="bg-transparent text-xs md:text-sm font-bold text-white outline-none w-full appearance-none cursor-pointer relative z-30 hover:text-amber-400 transition">
+                                                        <option value="" className="text-slate-500 bg-slate-900">Chọn đội...</option>
+                                                        {teams.filter(t => [...groups.A, ...groups.B].includes(t.id)).map(t => <option key={t.id} value={t.id} className="bg-slate-900 text-white">{t.name}</option>)}
+                                                    </select>
+                                                ) : (
+                                                    <div className="flex items-center w-full truncate">{renderTeamLogo(bracket.semi2Team1)}<div className="truncate">{renderTeamNameObj(bracket.semi2Team1, 'semi2')}</div></div>
+                                                )}
+                                            </div>
+                                            <div className="flex items-center justify-between bg-slate-950 p-2 rounded-lg border border-white/5 relative z-30">
+                                                {role === 'admin' ? (
+                                                    <select value={bracket.semi2Team2 || ''} onChange={(e) => handleBracketChange('semi2Team2', e.target.value)} className="bg-transparent text-xs md:text-sm font-bold text-white outline-none w-full appearance-none cursor-pointer relative z-30 hover:text-amber-400 transition">
+                                                        <option value="" className="text-slate-500 bg-slate-900">Chọn đội...</option>
+                                                        {teams.filter(t => [...groups.A, ...groups.B].includes(t.id)).map(t => <option key={t.id} value={t.id} className="bg-slate-900 text-white">{t.name}</option>)}
+                                                    </select>
+                                                ) : (
+                                                    <div className="flex items-center w-full truncate">{renderTeamLogo(bracket.semi2Team2)}<div className="truncate">{renderTeamNameObj(bracket.semi2Team2, 'semi2')}</div></div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* ĐƯỜNG NỐI TỪ BÁN KẾT SANG CHUNG KẾT */}
+                                <div className="hidden md:flex items-center w-8 h-full relative z-10 mx-[2px]">
+                                    <div className="w-full border-t-2 border-amber-500/80 shadow-[0_0_8px_#fbbf24]"></div>
+                                    <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-amber-400 rounded-full shadow-[0_0_10px_#fbbf24]"></div>
+                                </div>
+
+                                {/* CỘT CHUNG KẾT */}
+                                <div className="w-[260px] md:w-[320px] ml-8 md:ml-0 shrink-0 relative z-20">
+                                    <div className="bg-slate-900 bg-gradient-to-br from-amber-600/30 to-amber-900/30 border-2 border-amber-500/50 rounded-2xl p-4 shadow-[0_0_30px_rgba(245,158,11,0.2)] relative transform md:scale-105">
+                                        <div className="hidden md:block absolute top-1/2 -left-8 w-8 border-t-2 border-amber-500/80 z-[-1]"></div>
+                                        
+                                        <div className="text-[10px] md:text-xs uppercase font-black text-amber-400 mb-3 border-b border-amber-500/30 pb-2 text-center flex justify-center items-center"><IconTrophy size={16} className="mr-2"/> Chung Kết</div>
+                                        <div className="flex flex-col gap-3 relative z-30">
+                                            <div className="flex items-center justify-between bg-slate-950 p-2.5 md:p-3 rounded-xl border border-amber-500/30 shadow-inner relative z-30">
+                                                {role === 'admin' ? (
+                                                    <select value={bracket.finalTeam1 || ''} onChange={(e) => handleBracketChange('finalTeam1', e.target.value)} className="bg-transparent text-sm md:text-base font-black text-white outline-none w-full appearance-none cursor-pointer relative z-30 hover:text-amber-400 transition">
+                                                        <option value="" className="text-slate-500 bg-slate-900">Chọn đội...</option>
+                                                        {teams.filter(t => [...groups.A, ...groups.B].includes(t.id)).map(t => <option key={t.id} value={t.id} className="bg-slate-900 text-white">{t.name}</option>)}
+                                                    </select>
+                                                ) : (
+                                                    <div className="flex items-center w-full truncate">{renderTeamLogo(bracket.finalTeam1)}<div className="text-sm md:text-base truncate">{renderTeamNameObj(bracket.finalTeam1, 'final')}</div></div>
+                                                )}
+                                            </div>
+                                            <div className="flex items-center justify-between bg-slate-950 p-2.5 md:p-3 rounded-xl border border-amber-500/30 shadow-inner relative z-30">
+                                                {role === 'admin' ? (
+                                                    <select value={bracket.finalTeam2 || ''} onChange={(e) => handleBracketChange('finalTeam2', e.target.value)} className="bg-transparent text-sm md:text-base font-black text-white outline-none w-full appearance-none cursor-pointer relative z-30 hover:text-amber-400 transition">
+                                                        <option value="" className="text-slate-500 bg-slate-900">Chọn đội...</option>
+                                                        {teams.filter(t => [...groups.A, ...groups.B].includes(t.id)).map(t => <option key={t.id} value={t.id} className="bg-slate-900 text-white">{t.name}</option>)}
+                                                    </select>
+                                                ) : (
+                                                    <div className="flex items-center w-full truncate">{renderTeamLogo(bracket.finalTeam2)}<div className="text-sm md:text-base truncate">{renderTeamNameObj(bracket.finalTeam2, 'final')}</div></div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* HÀNG 2: TRANH HẠNG 3 */}
+                            <div className="mt-8 md:mt-12 w-[260px] md:w-[300px]">
+                                <div className="bg-slate-800 border border-white/10 rounded-xl p-3 shadow-lg relative z-20 opacity-90">
+                                    <div className="text-[10px] uppercase font-bold text-slate-400 mb-2 border-b border-white/5 pb-1 text-center">Tranh Hạng 3</div>
+                                    <div className="flex flex-col gap-2 relative z-30">
+                                        <div className="flex items-center justify-between bg-slate-950 p-2 rounded-lg border border-white/5 relative z-30">
+                                            {role === 'admin' ? (
+                                                <select value={bracket.thirdTeam1 || ''} onChange={(e) => handleBracketChange('thirdTeam1', e.target.value)} className="bg-transparent text-xs md:text-sm font-bold text-white outline-none w-full appearance-none cursor-pointer relative z-30 hover:text-amber-400 transition">
+                                                    <option value="" className="text-slate-500 bg-slate-900">Chọn đội...</option>
+                                                    {teams.filter(t => [...groups.A, ...groups.B].includes(t.id)).map(t => <option key={t.id} value={t.id} className="bg-slate-900 text-white">{t.name}</option>)}
+                                                </select>
+                                            ) : (
+                                                <div className="flex items-center w-full truncate">{renderTeamLogo(bracket.thirdTeam1)}<div className="truncate">{renderTeamNameObj(bracket.thirdTeam1, 'third')}</div></div>
+                                            )}
+                                        </div>
+                                        <div className="flex items-center justify-between bg-slate-950 p-2 rounded-lg border border-white/5 relative z-30">
+                                            {role === 'admin' ? (
+                                                <select value={bracket.thirdTeam2 || ''} onChange={(e) => handleBracketChange('thirdTeam2', e.target.value)} className="bg-transparent text-xs md:text-sm font-bold text-white outline-none w-full appearance-none cursor-pointer relative z-30 hover:text-amber-400 transition">
+                                                    <option value="" className="text-slate-500 bg-slate-900">Chọn đội...</option>
+                                                    {teams.filter(t => [...groups.A, ...groups.B].includes(t.id)).map(t => <option key={t.id} value={t.id} className="bg-slate-900 text-white">{t.name}</option>)}
+                                                </select>
+                                            ) : (
+                                                <div className="flex items-center w-full truncate">{renderTeamLogo(bracket.thirdTeam2)}<div className="truncate">{renderTeamNameObj(bracket.thirdTeam2, 'third')}</div></div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
+                    </div>
 
-                        {/* BẢNG B */}
-                        <div className={`bg-slate-900/60 backdrop-blur-md rounded-3xl border-2 overflow-hidden flex flex-col shadow-2xl relative transition-all duration-500 ${groupDraw.group === 'B' && groupDraw.phase === 'result' ? 'border-blue-400 shadow-[0_0_40px_rgba(59,130,246,0.3)] scale-[1.02]' : 'border-white/10'}`}>
-                            <div className="bg-gradient-to-r from-blue-600 to-blue-900 p-4 flex items-center justify-center relative">
-                                <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-30 mix-blend-overlay"></div>
-                                <h3 className="relative z-10 text-3xl font-black text-white tracking-[0.2em] uppercase drop-shadow-lg">BẢNG B</h3>
-                            </div>
-                            <div className="flex-1 p-4 md:p-6 flex flex-col space-y-4 justify-center">
-                                {groups.B.map(teamId => {
-                                    const team = teams.find(t => t.id === teamId);
-                                    if (!team) return null;
-                                    return (
-                                        <div key={teamId} className={`relative overflow-hidden rounded-2xl border-2 border-white/20 bg-gradient-to-r ${team.colorFrom} ${team.colorTo} shadow-lg flex items-center p-4 transform transition-all animate-fade-in-up`}>
-                                            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20 mix-blend-overlay"></div>
-                                            {team.logo && <img src={team.logo} className="w-16 h-16 object-contain drop-shadow-xl relative z-10 mr-4" alt="logo" />}
-                                            <div className="relative z-10">
-                                                <h4 className="text-2xl font-black text-white uppercase italic drop-shadow-md">{team.name}</h4>
-                                            </div>
-                                        </div>
-                                    );
-                                })}
-                                {Array.from({ length: Math.max(0, 3 - groups.B.length) }).map((_, i) => (
-                                    <div key={`empty-b-${i}`} className="rounded-2xl border-2 border-dashed border-white/10 bg-slate-800/30 flex items-center justify-center p-4 h-[96px] opacity-50">
-                                        <span className="text-slate-500 font-black text-xl italic uppercase">Vị trí B{groups.B.length + i + 1}</span>
+                    {/* KHU VỰC CẬP NHẬT TỈ SỐ & LỊCH ĐẤU GỘP THEO NGÀY (BOTTOM) */}
+                    <div className="bg-slate-900/60 backdrop-blur-md rounded-2xl border border-white/10 p-4 md:p-6 shadow-lg">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 border-b border-white/10 pb-3 gap-2">
+                            <h2 className="text-lg font-black text-white uppercase tracking-widest flex items-center">
+                                <IconSwords className="mr-2 text-rose-400" size={20} /> Cập Nhật Tỉ Số & Lịch Đấu
+                            </h2>
+                            {role === 'admin' ? (
+                                <p className="text-[10px] md:text-xs text-amber-400 font-bold italic">
+                                    * Tỉ số Bán Kết sẽ tự động quyết định đội vào Chung Kết.
+                                </p>
+                            ) : (
+                                <span className="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded-lg w-max font-bold animate-pulse">Realtime</span>
+                            )}
+                        </div>
+                        
+                        <div className="flex flex-col gap-6 md:gap-8">
+                            {matchGroups.map((group, dayIndex) => (
+                                <div key={dayIndex} className="bg-slate-900/40 rounded-2xl border border-white/5 p-4 md:p-6 flex flex-col gap-4 shadow-lg">
+                                    
+                                    {/* Ngày thi đấu Header */}
+                                    <div className="flex items-center pb-3 mb-1 border-b border-white/10">
+                                        <IconCalendar className="text-emerald-400 mr-2 shrink-0" size={20} />
+                                        {role === 'admin' ? (
+                                            <input 
+                                                type="text" 
+                                                placeholder={`VD: Ngày ${dayIndex + 1} - Thứ 7, 15/04`} 
+                                                value={days[dayIndex] || ''} 
+                                                onChange={(e) => handleChangeDayTime(dayIndex, e.target.value)}
+                                                className="bg-slate-950/80 border border-emerald-500/30 text-emerald-400 text-sm md:text-base font-bold rounded-lg px-3 py-1.5 focus:outline-none focus:border-emerald-500 w-full max-w-sm transition-colors"
+                                            />
+                                        ) : (
+                                            <span className="text-emerald-400 font-black text-sm md:text-base uppercase tracking-widest">
+                                                {days[dayIndex] || `Ngày thi đấu ${dayIndex + 1}`}
+                                            </span>
+                                        )}
                                     </div>
-                                ))}
-                            </div>
+
+                                    {/* Render các trận trong ngày */}
+                                    <div className="flex flex-col gap-3 md:gap-4">
+                                        {group.map((m, relativeIdx) => {
+                                            const originalIndex = dayIndex * 2 + relativeIdx;
+                                            
+                                            let borderLeft = "border-l-4 border-slate-700";
+                                            if(m.type === 'groupA') borderLeft = "border-l-4 border-amber-500";
+                                            if(m.type === 'groupB') borderLeft = "border-l-4 border-blue-500";
+                                            if(m.type === 'semi1' || m.type === 'semi2') borderLeft = "border-l-4 border-purple-500";
+                                            if(m.type === 'third' || m.type === 'final') borderLeft = "border-l-4 border-rose-500";
+
+                                            return (
+                                                <div key={m.id} className={`flex flex-col md:flex-row items-center justify-between bg-slate-800/80 p-3 md:p-4 rounded-xl border border-white/5 hover:bg-slate-700/80 transition ${borderLeft}`}>
+                                                    
+                                                    {/* CỘT THÔNG TIN VÒNG ĐẤU */}
+                                                    <div className="w-full md:w-[120px] text-center md:text-left mb-3 md:mb-0 shrink-0 flex flex-col justify-center items-center md:items-start gap-1">
+                                                        <div className="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-widest bg-slate-900/50 px-2 py-1 rounded w-fit">
+                                                            {getMatchTitle(m.type)}
+                                                        </div>
+                                                    </div>
+
+                                                    {/* CỘT ĐỘI 1 - TỈ SỐ - ĐỘI 2 */}
+                                                    <div className="flex-1 flex items-center justify-center w-full min-w-0">
+                                                        {/* ĐỘI 1 */}
+                                                        <div className="flex-1 flex items-center justify-end text-right pr-2 md:pr-4 min-w-0">
+                                                            {role === 'admin' ? renderMatchTeamSelect(m, true) : <span className="font-bold text-xs md:text-base text-slate-200 truncate">{m.team1 ? teams.find(t=>t.id===m.team1)?.name : '???'}</span>}
+                                                            <div className="ml-2 md:ml-3 shrink-0">{renderTeamLogo(m.team1)}</div>
+                                                        </div>
+                                                        
+                                                        {/* TỈ SỐ */}
+                                                        <div className="flex items-center space-x-1 md:space-x-2 shrink-0 bg-slate-950 p-1 md:p-2 rounded-lg border border-white/10 mx-1 md:mx-2 shadow-inner">
+                                                            {role === 'admin' ? (
+                                                                <>
+                                                                    <input type="number" min="0" value={m.score1} onChange={(e) => handleUpdateScore(m.id, e.target.value, m.score2)} className="w-8 h-8 md:w-12 md:h-12 text-center bg-slate-800 text-white font-black text-base md:text-xl rounded focus:ring-2 focus:ring-amber-500 outline-none transition-all" placeholder="-" />
+                                                                    <span className="text-slate-500 font-bold">:</span>
+                                                                    <input type="number" min="0" value={m.score2} onChange={(e) => handleUpdateScore(m.id, m.score1, e.target.value)} className="w-8 h-8 md:w-12 md:h-12 text-center bg-slate-800 text-white font-black text-base md:text-xl rounded focus:ring-2 focus:ring-amber-500 outline-none transition-all" placeholder="-" />
+                                                                </>
+                                                            ) : (
+                                                                <div className="px-2 md:px-5 py-1 md:py-2 text-center font-black text-base md:text-2xl tracking-widest min-w-[60px] md:min-w-[90px]">
+                                                                    <span className={m.score1 !== '' ? "text-amber-400 drop-shadow-md" : "text-slate-600"}>{m.score1 !== '' ? m.score1 : '-'}</span>
+                                                                    <span className="text-slate-600 mx-1 md:mx-2">:</span>
+                                                                    <span className={m.score2 !== '' ? "text-amber-400 drop-shadow-md" : "text-slate-600"}>{m.score2 !== '' ? m.score2 : '-'}</span>
+                                                                </div>
+                                                            )}
+                                                        </div>
+
+                                                        {/* ĐỘI 2 */}
+                                                        <div className="flex-1 flex items-center justify-start text-left pl-2 md:pl-4 min-w-0">
+                                                            <div className="mr-2 md:mr-3 shrink-0">{renderTeamLogo(m.team2)}</div>
+                                                            {role === 'admin' ? renderMatchTeamSelect(m, false) : <span className="font-bold text-xs md:text-base text-slate-200 truncate">{m.team2 ? teams.find(t=>t.id===m.team2)?.name : '???'}</span>}
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Nút điều khiển Kéo/Thả Lên Xuống cho Admin */}
+                                                    {role === 'admin' && (
+                                                        <div className="flex flex-row md:flex-col gap-2 md:gap-1 mt-3 md:mt-0 md:ml-4 shrink-0 md:border-l border-white/10 md:pl-4 justify-center">
+                                                            <button onClick={() => handleMoveMatch(originalIndex, 'up')} disabled={originalIndex === 0} className="p-2 md:p-1.5 bg-slate-800 hover:bg-amber-500 text-slate-400 hover:text-slate-900 rounded disabled:opacity-30 disabled:cursor-not-allowed transition-colors" title="Kéo trận này Lên trên"><IconArrowUp size={16}/></button>
+                                                            <button onClick={() => handleMoveMatch(originalIndex, 'down')} disabled={originalIndex === matches.length - 1} className="p-2 md:p-1.5 bg-slate-800 hover:bg-amber-500 text-slate-400 hover:text-slate-900 rounded disabled:opacity-30 disabled:cursor-not-allowed transition-colors" title="Đẩy trận này Xuống dưới"><IconArrowDown size={16}/></button>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )
+                                        })}
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </div>
             )}
           </main>
-
-          {/* OVERLAY XỔ SỐ CHIA BẢNG - UPDATE KỊCH TÍNH HƠN */}
-          {groupDraw.active && (
-            <div onClick={role === 'admin' && groupDraw.phase === 'result' ? handleCloseGroupDraw : null} className={`fixed inset-0 z-[100] flex flex-col items-center justify-center overflow-hidden font-sans ${role === 'admin' && groupDraw.phase === 'result' ? 'cursor-pointer' : 'pointer-events-none'}`}>
-                <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-[#020617] to-slate-950/95 backdrop-blur-lg"></div>
-                
-                {groupDraw.phase === 'result' && groupDraw.group ? (
-                    <div className="absolute inset-0 opacity-50 mix-blend-screen pointer-events-none transition-all duration-1000">
-                         <div className={`absolute top-0 left-0 w-[70vw] h-[70vw] rounded-full blur-[150px] aurora-1 ${groupDraw.group === 'A' ? 'bg-amber-600' : 'bg-blue-600'}`}></div>
-                         <div className={`absolute bottom-0 right-0 w-[70vw] h-[70vw] rounded-full blur-[150px] aurora-2 ${groupDraw.group === 'A' ? 'bg-yellow-500' : 'bg-cyan-500'}`}></div>
-                    </div>
-                ) : (
-                    <div className="absolute inset-0 opacity-30 mix-blend-screen pointer-events-none transition-all duration-1000">
-                         <div className={`absolute top-[10%] left-[10%] w-[50vw] h-[50vw] rounded-full blur-[120px] aurora-1 ${groupDraw.group === 'A' ? 'bg-amber-500/30' : 'bg-blue-500/30'}`}></div>
-                         <div className={`absolute bottom-[10%] right-[10%] w-[50vw] h-[50vw] rounded-full blur-[120px] aurora-2 ${groupDraw.group === 'A' ? 'bg-orange-500/30' : 'bg-cyan-500/30'}`}></div>
-                    </div>
-                )}
-                
-                <div className="absolute inset-0 pointer-events-none">{renderStars(40)}</div>
-
-                <h2 className={`text-xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-slate-300 to-white mb-8 md:mb-14 tracking-[0.2em] md:tracking-[0.3em] uppercase z-10 relative text-center px-4 ${groupDraw.phase === 'result' ? (groupDraw.group === 'A' ? 'animate-bounce text-amber-400 from-amber-200 to-amber-500 drop-shadow-[0_0_20px_rgba(245,158,11,0.6)]' : 'animate-bounce text-cyan-400 from-cyan-200 to-cyan-500 drop-shadow-[0_0_20px_rgba(34,211,238,0.6)]') : 'animate-pulse'}`}>
-                    {groupDraw.phase === 'spin_team' ? `ĐANG TÌM ĐỘI VÀO BẢNG ${groupDraw.group}...` : 'XÁC NHẬN BẢNG ĐẤU'}
-                </h2>
-
-                <div className="relative z-10 w-full max-w-4xl flex flex-col items-center">
-                    
-                    {/* Hiển thị Đội bóng đang quay */}
-                    <div className={`relative bg-gradient-to-br ${groupDraw.team?.colorFrom || 'from-slate-800'} ${groupDraw.team?.colorTo || 'to-slate-900'} border-4 border-white/20 rounded-[2rem] p-6 md:p-10 text-center transform transition-all duration-500 flex flex-col items-center justify-center shadow-2xl w-[90%] sm:w-[80%] ${groupDraw.phase !== 'spin_team' ? 'scale-100' : 'scale-95 opacity-80'} ${groupDraw.phase === 'result' ? '-translate-y-4 scale-90' : ''}`}>
-                        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-30 mix-blend-overlay rounded-[2rem]"></div>
-                        {groupDraw.team?.logo && <img src={groupDraw.team.logo} className={`w-28 h-28 md:w-40 md:h-40 object-contain drop-shadow-2xl relative z-10 mb-4 ${groupDraw.phase === 'spin_team' ? 'animate-fast-spin filter blur-[1px]' : 'animate-logo-reveal'}`} alt="logo" />}
-                        <h3 className="relative z-10 text-4xl md:text-6xl font-black text-white uppercase italic tracking-wider drop-shadow-lg">{groupDraw.team?.name || '???'}</h3>
-                    </div>
-
-                    {/* Hiển thị Bảng Chốt Khung Cố Định */}
-                    <div className="flex flex-col items-center animate-fade-in-up -mt-2 md:-mt-4 w-[90%] sm:w-[80%]">
-                        <div className="bg-slate-900 p-2 md:p-3 rounded-full mb-3 md:mb-4 z-20 border border-white/10 shadow-xl"><IconChevronRight className={`rotate-90 ${groupDraw.group === 'A' ? 'text-amber-400' : 'text-cyan-400'}`} size={32} /></div>
-                        <div className={`relative rounded-[2rem] py-8 px-4 md:py-12 md:px-8 w-full text-center transform transition-all duration-700 border-4 overflow-hidden ${groupDraw.phase === 'result' ? `scale-105 shadow-[0_0_80px_rgba(255,255,255,0.2)] border-white/50 ${groupDraw.group === 'A' ? 'bg-gradient-to-br from-amber-500 to-amber-700' : 'bg-gradient-to-br from-blue-500 to-blue-700'}` : 'border-white/10 bg-slate-800'}`}>
-                            {groupDraw.phase === 'result' && <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-30 mix-blend-overlay"></div>}
-                            <div className={`text-6xl md:text-8xl font-black uppercase tracking-widest drop-shadow-2xl relative z-10 ${groupDraw.phase === 'result' ? 'text-white' : 'text-slate-500'}`}>
-                                BẢNG {groupDraw.group}
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-
-                {groupDraw.phase === 'result' && <div className="absolute bottom-8 md:bottom-12 animate-pulse text-white/50 text-xs md:text-sm font-bold tracking-widest uppercase text-center z-20 drop-shadow-md">{role === 'admin' ? '(CLICK VÀO MÀN HÌNH ĐỂ LƯU KẾT QUẢ & TIẾP TỤC)' : 'ĐANG CHỜ ADMIN XÁC NHẬN...'}</div>}
-            </div>
-          )}
-
-          {/* OVERLAY XỔ SỐ ĐỘI TRƯỞNG */}
-          {captainReveal.active && (
-            <div onClick={role === 'admin' ? handleCloseCaptainReveal : null} className={`fixed inset-0 z-[200] flex flex-col items-center overflow-hidden font-sans ${role === 'admin' ? 'cursor-pointer' : 'pointer-events-none'} bg-[#020617]`}>
-                <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                    <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] bg-yellow-600/20 rounded-full blur-[100px] aurora-1 mix-blend-screen"></div>
-                    <div className="absolute bottom-[-10%] right-[-10%] w-[60vw] h-[60vw] bg-amber-500/20 rounded-full blur-[120px] aurora-2 mix-blend-screen"></div>
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[40vw] h-[40vw] bg-orange-600/20 rounded-full blur-[100px] aurora-3 mix-blend-screen"></div>
-                </div>
-                <div className="absolute inset-0 pointer-events-none">{renderStars(40)}</div>
-                <div className="absolute top-1/2 left-1/2 w-[200vw] h-[200vw] bg-[conic-gradient(from_0deg,transparent_0deg,#fbbf2422_10deg,transparent_20deg,transparent_40deg,#fbbf2422_50deg,transparent_60deg,transparent_80deg,#fbbf2422_90deg,transparent_100deg)] mix-blend-screen" style={{animation: 'fifaRays 25s linear infinite'}}></div>
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#020617]/60 to-[#020617]"></div>
-                
-                <div className="relative z-30 flex flex-col items-center justify-between w-full h-full p-4 md:p-6 lg:p-8">
-                    <h2 className={`text-3xl sm:text-4xl md:text-6xl font-black text-transparent bg-clip-text uppercase tracking-[0.2em] animate-pulse mt-2 md:mt-4 text-center flex-shrink-0 ${captainReveal.type === 'fast' ? 'bg-gradient-to-b from-blue-100 via-blue-400 to-blue-600 drop-shadow-[0_0_30px_rgba(59,130,246,1)]' : 'bg-gradient-to-b from-yellow-100 via-yellow-400 to-yellow-600 drop-shadow-[0_0_30px_rgba(250,204,21,1)]'}`} style={{ textShadow: `0 4px 20px ${captainReveal.type === 'fast' ? 'rgba(59,130,246,0.5)' : 'rgba(250,204,21,0.5)'}` }}>
-                        {captainReveal.type === 'fast' ? 'QUICK DRAFT X6' : 'CAPTAINS REVEAL'}
-                    </h2>
-                    
-                    <div className="flex-1 flex items-center justify-center w-full min-h-0 py-4">
-                        <div className="w-full max-w-6xl grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6 md:gap-8 justify-items-center" style={{ perspective: '1000px' }}>
-                            {captainReveal.assignments.map((assign, idx) => (
-                                <div key={idx} className="card-reveal-fifa w-full max-w-[140px] sm:max-w-[200px] md:max-w-[240px] lg:max-w-[260px] xl:max-w-[280px]" style={{animationDelay: `${idx * 0.7}s`}}>
-                                    <div className={`relative rounded-2xl sm:rounded-3xl overflow-hidden border-2 sm:border-4 bg-gradient-to-br ${assign.team.colorFrom} ${assign.team.colorTo} aspect-[3/4] flex flex-col justify-end p-3 sm:p-5 transform transition-transform duration-300 hover:scale-105 ${captainReveal.type === 'fast' ? 'border-blue-400 shadow-[0_0_40px_rgba(59,130,246,0.4)] hover:shadow-[0_0_60px_rgba(59,130,246,0.8)]' : 'border-yellow-400 shadow-[0_0_40px_rgba(250,204,21,0.4)] hover:shadow-[0_0_60px_rgba(250,204,21,0.8)]'}`}>
-                                        {assign.team.logo && <img src={assign.team.logo} alt="Logo BG" className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[140%] h-[140%] object-contain opacity-15 pointer-events-none mix-blend-overlay filter blur-[4px]" />}
-                                        {assign.team.logo && <img src={assign.team.logo} alt="Logo" className="absolute top-1/2 left-1/2 w-20 h-20 sm:w-28 sm:h-28 md:w-36 md:h-36 object-contain opacity-90 pointer-events-none drop-shadow-[0_0_20px_rgba(0,0,0,0.8)]" style={{animation: `smoothCardLogoReveal 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) ${idx * 0.7 + 0.3}s both`}} />}
-                                        
-                                        {assign.player.isCaptain && (
-                                            <div className="absolute top-3 left-3 sm:top-4 sm:left-4 flex flex-col items-center bg-black/50 p-1.5 sm:p-2.5 rounded-xl sm:rounded-2xl border border-yellow-400/50 backdrop-blur-md shadow-lg">
-                                                <span className="text-xl sm:text-3xl lg:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-b from-yellow-100 via-yellow-300 to-yellow-600 italic drop-shadow-lg leading-none mb-0.5 sm:mb-1">C</span>
-                                                <div className="w-3 h-3 sm:w-5 sm:h-5 flex items-center justify-center">
-                                                    <IconCrown size="100%" className="text-yellow-400 drop-shadow-[0_0_10px_rgba(250,204,21,0.8)]"/>
-                                                </div>
-                                            </div>
-                                        )}
-                                        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-50 mix-blend-overlay pointer-events-none"></div>
-                                        
-                                        <div className="relative z-10 text-center bg-gradient-to-t from-black via-black/80 to-transparent pt-10 sm:pt-16 pb-2 sm:pb-3 -mx-3 sm:-mx-5 -mb-3 sm:-mb-5 px-2 sm:px-4">
-                                            <div className={`${captainReveal.type === 'fast' ? 'text-blue-300' : 'text-yellow-400'} font-black uppercase tracking-[0.2em] text-[8px] sm:text-xs lg:text-sm mb-0.5 sm:mb-1 drop-shadow-md`}>{assign.team.name}</div>
-                                            <div className={`text-white font-black uppercase italic leading-tight drop-shadow-[0_2px_5px_rgba(0,0,0,1)] whitespace-nowrap w-full flex justify-center px-1 ${getCaptainNameClass(assign.player.name)}`}>{assign.player.name}</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                    
-                    <div className={`animate-pulse text-[10px] md:text-sm font-black tracking-[0.2em] uppercase text-center flex-shrink-0 z-40 drop-shadow-lg bg-black/60 px-6 py-3 rounded-full border mb-2 md:mb-4 ${captainReveal.type === 'fast' ? 'text-blue-400/90 border-blue-400/40' : 'text-yellow-400/90 border-yellow-400/40'}`}>
-                        {role === 'admin' ? '(CLICK VÀO MÀN HÌNH ĐỂ LƯU KẾT QUẢ & TIẾP TỤC)' : 'ĐANG CHỜ ADMIN XÁC NHẬN...'}
-                    </div>
-                </div>
-            </div>
-          )}
-
-          {/* OVERLAY XỔ SỐ THƯỜNG */}
-          {lottery.active && (
-            <div onClick={role === 'admin' && lottery.phase === 'result' ? handleCloseLottery : null} className={`fixed inset-0 z-[100] flex flex-col items-center justify-center overflow-hidden font-sans ${role === 'admin' && lottery.phase === 'result' ? 'cursor-pointer' : 'pointer-events-none'}`}>
-              <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-[#020617] to-slate-950/95 backdrop-blur-md"></div>
-              {lottery.phase === 'result' && lottery.team ? (
-                  <div className="absolute inset-0 opacity-40 mix-blend-screen pointer-events-none transition-all duration-1000">
-                       <div className={`absolute top-0 left-0 w-[60vw] h-[60vw] bg-gradient-to-br ${lottery.team.colorFrom} ${lottery.team.colorTo} rounded-full blur-[150px] aurora-1`}></div>
-                       <div className={`absolute bottom-0 right-0 w-[60vw] h-[60vw] bg-gradient-to-br ${lottery.team.colorFrom} ${lottery.team.colorTo} rounded-full blur-[150px] aurora-2`}></div>
-                  </div>
-              ) : (
-                  <div className="absolute inset-0 opacity-30 mix-blend-screen pointer-events-none transition-all duration-1000">
-                       <div className="absolute top-[10%] left-[10%] w-[50vw] h-[50vw] bg-amber-500/30 rounded-full blur-[120px] aurora-1"></div>
-                       <div className="absolute bottom-[10%] right-[10%] w-[50vw] h-[50vw] bg-blue-500/30 rounded-full blur-[120px] aurora-2"></div>
-                  </div>
-              )}
-              <div className="absolute inset-0 pointer-events-none">{renderStars(30)}</div>
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150vw] h-[30vh] md:w-[120vw] md:h-[20vh] bg-white/5 blur-[80px] md:blur-[100px] -rotate-12 animate-pulse transform-gpu"></div>
-              {lottery.phase === 'result' && <div className="absolute inset-0 flex justify-center items-center opacity-30 pointer-events-none"><div className={`w-[600px] h-[600px] md:w-[900px] md:h-[900px] rounded-full blur-[100px] md:blur-[120px] bg-gradient-to-tr ${lottery.team?.colorFrom} ${lottery.team?.colorTo} transform-gpu`}></div></div>}
-
-              <h2 className={`text-lg md:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-slate-300 to-white mb-8 md:mb-14 tracking-[0.2em] md:tracking-[0.3em] uppercase z-10 relative text-center px-4 ${lottery.phase === 'result' ? 'animate-bounce text-amber-400 from-amber-200 to-amber-500 drop-shadow-[0_0_10px_rgba(245,158,11,0.5)]' : 'animate-pulse'}`}>{lottery.phase === 'spin_player' ? 'Đang lựa chọn' : lottery.phase === 'show_player' ? 'Cầu thủ được chọn' : lottery.phase === 'spin_team' ? 'Tìm đội bóng' : 'Xác nhận gia nhập'}</h2>
-
-              <div className="relative z-10 w-full max-w-6xl flex flex-col items-center">
-                <div className={`relative bg-slate-900 border border-white/10 rounded-3xl py-6 px-4 md:py-10 md:px-8 text-center transform transition-all duration-500 w-[96%] sm:w-[90%] md:w-[85%] lg:w-[75%] ${lottery.phase !== 'spin_player' ? 'scale-100 border-amber-500/50 shadow-[0_0_40px_rgba(245,158,11,0.2)] bg-gradient-to-b from-slate-800 to-slate-900' : 'scale-95 opacity-80'} ${(lottery.phase === 'spin_team' || lottery.phase === 'result') ? '-translate-y-6 md:-translate-y-8 scale-90 md:scale-95' : ''}`}>
-                   {lottery.phase !== 'spin_player' && <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-px bg-gradient-to-r from-transparent via-amber-400 to-transparent"></div>}
-                   <div className="text-amber-400/80 text-xs md:text-base font-black uppercase tracking-[0.3em] md:tracking-[0.4em] mb-2 md:mb-3 flex justify-center items-center">
-                       {getPositionIcon(lottery.player?.position || 'Khác')} <span className="ml-2 md:ml-3">{lottery.player?.position || 'Vị trí'}</span>
-                   </div>
-                   <div className={`font-black text-white uppercase italic tracking-tighter drop-shadow-xl whitespace-nowrap w-full flex justify-center px-1 sm:px-2 transition-all duration-300 leading-tight ${getPlayerNameClass(lottery.player?.name)}`}>{lottery.player?.name || '...'}</div>
-                </div>
-
-                {(lottery.phase === 'spin_team' || lottery.phase === 'result') && (
-                  <div className="flex flex-col items-center animate-fade-in-up -mt-4 md:-mt-6 w-[96%] sm:w-[90%] md:w-[85%] lg:w-[75%]">
-                    <div className="bg-slate-900 p-2 md:p-3 rounded-full mb-3 md:mb-4 z-20 border border-white/10 shadow-xl"><IconChevronRight className="rotate-90 text-amber-400" size={24} /></div>
-                    <div className={`relative rounded-3xl py-6 px-4 md:py-10 md:px-8 w-full text-center transform transition-all duration-700 border-2 overflow-hidden ${lottery.phase === 'result' ? `scale-[1.02] md:scale-105 shadow-[0_0_50px_rgba(255,255,255,0.15)] border-white/50 bg-gradient-to-br ${lottery.team?.colorFrom} ${lottery.team?.colorTo}` : 'border-white/10 bg-slate-800'}`}>
-                      {lottery.phase === 'result' && <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20 mix-blend-overlay"></div>}
-                      <div className="flex flex-col items-center justify-center space-y-3 md:space-y-4 relative z-10">
-                          {lottery.team?.logo && <img src={lottery.team.logo} alt="Team Logo" className={`w-20 h-20 sm:w-28 sm:h-28 md:w-36 md:h-36 object-contain ${lottery.phase === 'spin_team' ? 'animate-fast-spin' : 'animate-logo-reveal drop-shadow-[0_0_30px_rgba(255,255,255,0.6)]'}`} onError={(e) => e.target.style.display='none'} />}
-                          <div className={`text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black uppercase italic tracking-tighter ${lottery.phase === 'result' ? 'text-white drop-shadow-xl' : 'text-slate-500'}`}>{lottery.team?.name || '???'}</div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-              {lottery.phase === 'result' && <div className="absolute bottom-8 md:bottom-12 animate-pulse text-white/50 text-xs md:text-sm font-bold tracking-widest uppercase text-center z-20 drop-shadow-md">{role === 'admin' ? '(CLICK VÀO MÀN HÌNH ĐỂ LƯU KẾT QUẢ & TIẾP TỤC)' : 'ĐANG CHỜ ADMIN XÁC NHẬN...'}</div>}
-            </div>
-          )}
-          
-          {/* MODAL EDIT CẦU THỦ */}
-          {editingPlayer && role === 'admin' && (
-            <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[150] p-4 font-sans">
-               <div className="bg-slate-900 border border-amber-500/30 rounded-2xl w-full max-w-sm shadow-[0_0_30px_rgba(245,158,11,0.15)] overflow-hidden">
-                   <div className="p-4 border-b border-white/10 flex justify-between items-center bg-slate-800/80">
-                       <h3 className="font-black text-white uppercase flex items-center"><IconEdit size={16} className="mr-2 text-amber-400"/> Chỉnh sửa cầu thủ</h3>
-                       <button onClick={() => setEditingPlayer(null)} className="text-slate-400 hover:text-white"><IconX size={18}/></button>
-                   </div>
-                   <div className="p-5 space-y-4">
-                       <div><label className="block text-xs font-bold text-slate-400 uppercase mb-1">Tên cầu thủ</label><input type="text" value={editFormData.name} onChange={e => setEditFormData({...editFormData, name: e.target.value})} className="w-full bg-slate-950 border border-white/10 rounded-lg px-3 py-2 text-white focus:border-amber-400 focus:outline-none" /></div>
-                       <div><label className="block text-xs font-bold text-slate-400 uppercase mb-1">Vị trí</label><select value={editFormData.position} onChange={e => setEditFormData({...editFormData, position: e.target.value})} className="w-full bg-slate-950 border border-white/10 rounded-lg px-3 py-2 text-white focus:border-amber-400 focus:outline-none">{POSITIONS.map(p => <option key={p} value={p}>{p}</option>)}</select></div>
-                       <div className="flex items-center space-x-2 bg-slate-800/50 p-3 rounded-lg border border-white/5"><input type="checkbox" id="isCap" checked={editFormData.isCaptain} onChange={e => setEditFormData({...editFormData, isCaptain: e.target.checked})} className="w-4 h-4 accent-amber-500" /><label htmlFor="isCap" className="text-sm font-bold text-yellow-400 flex items-center cursor-pointer select-none"><IconCrown size={16} className="mr-1"/> Đánh dấu là Đội Trưởng</label></div>
-                       <div><label className="block text-xs font-bold text-slate-400 uppercase mb-1">Thuyên chuyển đến</label><select value={editFormData.targetTeamId} onChange={e => setEditFormData({...editFormData, targetTeamId: e.target.value})} className="w-full bg-slate-950 border border-white/10 rounded-lg px-3 py-2 text-amber-400 font-bold focus:border-amber-400 focus:outline-none"><option value="pool">📋 Trả về Danh sách chờ</option>{teams.map(t => <option key={t.id} value={t.id}>🛡️ {t.name}</option>)}</select></div>
-                       <button onClick={savePlayerEdit} className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-black uppercase py-3 rounded-xl mt-2">Lưu thay đổi</button>
-                   </div>
-               </div>
-            </div>
-          )}
-
-          {/* MODAL CÀI ĐẶT */}
-          {showSettings && role === 'admin' && (
-            <div className="fixed inset-0 bg-[#020617]/90 backdrop-blur-sm flex items-center justify-center z-[110] p-3 md:p-4 font-sans">
-              <div className="bg-slate-900 border border-white/10 rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col max-h-[95vh] md:max-h-[90vh]">
-                <div className="p-4 md:p-5 border-b border-white/10 flex justify-between items-center bg-slate-800/80"><h2 className="text-lg md:text-xl font-black tracking-widest uppercase flex items-center text-white"><IconSettings className="mr-2 md:mr-3 text-amber-400" size={18} /> Cài đặt</h2><button onClick={() => setShowSettings(false)} className="text-slate-400 hover:text-white transition-colors bg-white/5 p-1.5 md:p-2 rounded-lg"><IconX size={18} /></button></div>
-                <div className="p-4 md:p-6 overflow-y-auto space-y-6 md:space-y-8 custom-scrollbar">
-                  
-                  {/* THANH CÔNG CỤ XUẤT DỮ LIỆU */}
-                  <div className="flex space-x-2 md:space-x-4">
-                     <button onClick={handleExportTXT} className="flex-1 bg-emerald-600/20 hover:bg-emerald-600/40 border border-emerald-500/30 text-emerald-400 rounded-xl p-3 md:p-4 flex flex-col items-center justify-center transition-all group">
-                         <IconDownload size={20} className="mb-1 md:mb-2 group-hover:scale-110 transition-transform"/>
-                         <span className="font-bold text-[10px] md:text-sm uppercase tracking-widest">Xuất File (.TXT)</span>
-                     </button>
-                     
-                     <button onClick={handleExportImage} disabled={isExportingImage} className={`flex-1 ${isExportingImage ? 'bg-blue-600/50 cursor-wait' : 'bg-blue-600/20 hover:bg-blue-600/40'} border border-blue-500/30 text-blue-400 rounded-xl p-3 md:p-4 flex flex-col items-center justify-center transition-all group`}>
-                         <IconImage size={20} className={`mb-1 md:mb-2 ${isExportingImage ? 'animate-bounce text-blue-200' : 'group-hover:scale-110 transition-transform'}`}/>
-                         <span className="font-bold text-[10px] md:text-sm uppercase tracking-widest">{isExportingImage ? 'Đang Tạo Ảnh...' : 'Xuất Ảnh (PNG)'}</span>
-                     </button>
-
-                     <button onClick={resetDraw} className="flex-1 bg-rose-600/20 hover:bg-rose-600/40 border border-rose-500/30 text-rose-400 rounded-xl p-3 md:p-4 flex flex-col items-center justify-center transition-all group">
-                         <IconRotateCcw size={20} className="mb-1 md:mb-2 group-hover:-rotate-180 transition-transform duration-500"/>
-                         <span className="font-bold text-[10px] md:text-sm uppercase tracking-widest">Xóa & Làm Lại Từ Đầu</span>
-                     </button>
-                  </div>
-
-                  <div className="bg-slate-800 border border-white/10 rounded-xl p-3 md:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                     <div><h4 className="text-white font-bold text-sm flex items-center"><IconKeyRound size={14} className="mr-2 text-amber-400"/> Đổi mật khẩu</h4><p className="text-[10px] md:text-xs text-slate-500 mt-1">Pass hiện tại để vào phòng Admin</p></div>
-                     <div className="flex space-x-2"><input type="text" value={newPasscode} onChange={(e) => setNewPasscode(e.target.value)} className="bg-slate-950 border border-white/10 rounded-lg px-3 py-1.5 text-sm text-white w-full sm:w-32 focus:border-amber-400 focus:outline-none" /><button onClick={() => savePasscodeToCloud(newPasscode)} className="bg-slate-700 hover:bg-amber-600 text-white px-3 py-1.5 rounded-lg text-sm font-bold transition">Lưu</button></div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4 md:gap-6"><div><label className="block text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Số lượng / Đội</label><select value={config.maxPlayersPerTeam} onChange={async (e) => { const v = parseInt(e.target.value); setConfig({...config, maxPlayersPerTeam: v}); await syncToCloud({ config: {...config, maxPlayersPerTeam: v} }); }} className="w-full bg-slate-800 border border-white/10 rounded-xl px-3 md:px-4 py-2.5 md:py-3 text-sm md:text-base text-white font-bold transition-colors">{[5,6,7,8,9,10,11,15,20].map(n => <option key={n} value={n}>{n} Người</option>)}</select></div></div>
-                  <div>
-                    <label className="block text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 md:mb-3">Tên đội bóng</label>
-                    <div className="grid grid-cols-2 gap-3 md:gap-4">
-                      {config.teamNames.map((name, i) => (
-                        <div key={i} className="relative"><div className={`absolute top-0 left-0 w-1 h-full rounded-l-xl bg-gradient-to-b ${INITIAL_TEAMS[i].colorFrom} ${INITIAL_TEAMS[i].colorTo}`}></div><input type="text" value={name} onChange={(e) => handleTeamNameChange(i, e.target.value)} placeholder={`Đội ${i+1}`} className="w-full bg-slate-800 border border-white/10 rounded-xl pl-4 md:pl-5 pr-2 md:pr-3 py-2 md:py-2.5 text-xs md:text-sm font-bold text-white transition-colors focus:border-amber-400 focus:outline-none" /></div>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="border-t border-white/10 pt-6 md:pt-8">
-                     <h3 className="text-base md:text-lg font-black text-amber-400 uppercase tracking-widest mb-1 md:mb-2 flex items-center"><IconUpload className="mr-2" size={16}/> Nạp dữ liệu Excel/CSV</h3>
-                     <p className="text-[10px] md:text-xs text-rose-400 mb-3 font-bold">* Mẹo: Hệ thống tự quét toàn bộ chữ "Đội Trưởng", "C" hoặc tên của Đội Bóng (VD: Tinh Hoa, Kỳ Tài...) từ các cột để phân loại tự động.</p>
-                     <textarea value={csvInput} onChange={(e) => setCsvInput(e.target.value)} placeholder="STT  |  Tên Cầu Thủ  |  Vị Trí  |  C (Đội Trưởng) hoặc Tên Đội Bóng (Nêú có)" className="w-full h-32 md:h-40 bg-slate-950 border border-white/10 rounded-xl p-3 md:p-4 text-xs md:text-sm font-mono text-slate-300 custom-scrollbar focus:border-amber-400 focus:outline-none" />
-                     <button onClick={handleImportExcel} className="mt-3 md:mt-4 w-full bg-gradient-to-r from-slate-700 to-slate-600 hover:from-amber-500 hover:to-amber-600 text-white font-black uppercase tracking-widest py-3 md:py-3.5 rounded-xl transition-all shadow-lg text-sm md:text-base">Cập nhật Database</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       );
     }
